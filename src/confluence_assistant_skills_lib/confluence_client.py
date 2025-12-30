@@ -314,7 +314,7 @@ class ConfluenceClient:
         Upload a file to Confluence.
 
         Args:
-            endpoint: API endpoint path (e.g., /api/v2/pages/12345/attachments)
+            endpoint: API endpoint path (e.g., /rest/api/content/{id}/child/attachment)
             file_path: Path to the file to upload
             params: Query parameters
             additional_data: Additional form data to include
@@ -331,25 +331,30 @@ class ConfluenceClient:
 
         logger.debug(f"Uploading file {file_path.name} to {url}")
 
-        # Create multipart form data
-        # Need to temporarily remove Content-Type header for file upload
-        headers = dict(self.session.headers)
-        headers.pop("Content-Type", None)
-        headers["X-Atlassian-Token"] = "nocheck"  # Required for file uploads
+        # For multipart file uploads, we must temporarily remove Content-Type from
+        # session.headers. The requests library merges passed headers with session
+        # headers, so removing from a copy doesn't work - the session's Content-Type
+        # still gets sent, causing HTTP 415 Unsupported Media Type errors.
+        original_content_type = self.session.headers.pop("Content-Type", None)
 
-        with open(file_path, "rb") as f:
-            files = {"file": (file_path.name, f)}
-            data = additional_data or {}
+        try:
+            with open(file_path, "rb") as f:
+                files = {"file": (file_path.name, f)}
+                data = additional_data or {}
 
-            response = self.session.post(
-                url,
-                files=files,
-                data=data,
-                params=params,
-                headers=headers,
-                timeout=self.timeout * 3,  # Longer timeout for uploads
-                verify=self.verify_ssl,
-            )
+                response = self.session.post(
+                    url,
+                    files=files,
+                    data=data,
+                    params=params,
+                    headers={"X-Atlassian-Token": "nocheck"},  # Required for uploads
+                    timeout=self.timeout * 3,  # Longer timeout for uploads
+                    verify=self.verify_ssl,
+                )
+        finally:
+            # Restore the original Content-Type header
+            if original_content_type:
+                self.session.headers["Content-Type"] = original_content_type
 
         return self._handle_response(response, operation)
 
