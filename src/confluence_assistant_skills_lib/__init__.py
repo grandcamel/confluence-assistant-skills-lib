@@ -44,10 +44,7 @@ from .confluence_client import ConfluenceClient, create_client
 # Config
 from .config_manager import (
     ConfigManager,
-    ConfigError,
     get_confluence_client,
-    get_config,
-    get_config_manager,
     get_default_space,
     get_space_keys,
 )
@@ -140,8 +137,8 @@ from .xhtml_helper import (
     validate_xhtml,
 )
 
-# Cache
-from .cache import (
+# Cache (from base library)
+from assistant_skills_lib.cache import (
     Cache,
     get_cache,
     cached,
@@ -156,10 +153,7 @@ __all__ = [
     "create_client",
     # Config
     "ConfigManager",
-    "ConfigError",
     "get_confluence_client",
-    "get_config",
-    "get_config_manager",
     "get_default_space",
     "get_space_keys",
     # Errors
