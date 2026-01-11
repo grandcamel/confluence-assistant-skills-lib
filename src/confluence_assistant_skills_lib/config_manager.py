@@ -7,27 +7,19 @@ Handles configuration from multiple sources with priority:
 3. settings.json (team defaults, committed)
 4. Built-in defaults (lowest priority)
 
-Environment Variables:
+Required Environment Variables:
     CONFLUENCE_API_TOKEN - API token for authentication
     CONFLUENCE_EMAIL - Email address for authentication
     CONFLUENCE_SITE_URL - Confluence site URL (e.g., https://your-site.atlassian.net)
-    CONFLUENCE_PROFILE - Profile name to use (default: "default")
 
 Usage:
-    from confluence_assistant_skills_lib import get_confluence_client, get_config
+    from confluence_assistant_skills_lib import get_confluence_client
 
     # Get a configured client
-    client = get_confluence_client(profile="production")
-
-    # Get raw configuration
-    config = get_config()
+    client = get_confluence_client()
 """
 
-import os
-import json
-import logging
-from pathlib import Path
-from typing import Optional, Dict, Any, TYPE_CHECKING
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from assistant_skills_lib.config_manager import BaseConfigManager
 from assistant_skills_lib.error_handler import ValidationError
@@ -35,23 +27,11 @@ from assistant_skills_lib.error_handler import ValidationError
 if TYPE_CHECKING:
     from .confluence_client import ConfluenceClient
 
-logger = logging.getLogger(__name__)
-
 
 class ConfigManager(BaseConfigManager):
     """
-    Manages Confluence configuration from multiple sources, inheriting from BaseConfigManager.
+    Manages Confluence configuration from environment variables and settings files.
     """
-
-    def __init__(self, profile: Optional[str] = None):
-        """
-        Initialize the configuration manager.
-
-        Args:
-            profile: Profile name to use. If not provided,
-                       searches for default from env or settings files.
-        """
-        super().__init__(profile=profile)
 
     def get_service_name(self) -> str:
         """Returns the name of the service, which is 'confluence'."""
@@ -67,20 +47,11 @@ class ConfigManager(BaseConfigManager):
                 "retry_backoff": 2.0,
                 "verify_ssl": True,
             },
-            "default_profile": "default",
-            "profiles": {},
         }
 
-
-
-
-
-    def get_credentials(self, profile: Optional[str] = None) -> Dict[str, Any]:
+    def get_credentials(self) -> Dict[str, Any]:
         """
-        Get and validate credentials for a specific profile.
-
-        Args:
-            profile: Profile name. If None, uses default profile.
+        Get and validate credentials from environment variables.
 
         Returns:
             A dictionary containing validated 'url', 'email', and 'api_token'.
@@ -88,30 +59,26 @@ class ConfigManager(BaseConfigManager):
         Raises:
             ValidationError: If required credentials are not found or are invalid.
         """
-        profile_name = profile or self.profile
-        profile_config = self.get_profile_config(profile_name)
-
-        url = self.get_credential_from_env('SITE_URL') or profile_config.get('url')
-        email = self.get_credential_from_env('EMAIL') or profile_config.get('email')
-        api_token = self.get_credential_from_env('API_TOKEN') or profile_config.get('api_token')
+        url = self.get_credential_from_env('SITE_URL')
+        email = self.get_credential_from_env('EMAIL')
+        api_token = self.get_credential_from_env('API_TOKEN')
 
         if not url:
             raise ValidationError(
-                f"Confluence URL not configured for profile '{profile_name}'. "
-                "Set CONFLUENCE_SITE_URL or configure in .claude/settings.json."
+                "Confluence URL not configured. "
+                "Set CONFLUENCE_SITE_URL environment variable."
             )
         if not email:
             raise ValidationError(
-                f"Confluence email not configured for profile '{profile_name}'. "
-                "Set CONFLUENCE_EMAIL or configure in .claude/settings.json."
+                "Confluence email not configured. "
+                "Set CONFLUENCE_EMAIL environment variable."
             )
         if not api_token:
             raise ValidationError(
-                f"Confluence API token not configured for profile '{profile_name}'. "
-                "Set CONFLUENCE_API_TOKEN or configure in .claude/settings.json."
+                "Confluence API token not configured. "
+                "Set CONFLUENCE_API_TOKEN environment variable."
             )
 
-        # Assuming validate_url and validate_email will be imported from base validators
         from assistant_skills_lib.validators import validate_url, validate_email
         return {
             "url": validate_url(url, require_https=True),
@@ -119,17 +86,14 @@ class ConfigManager(BaseConfigManager):
             "api_token": api_token,
         }
 
+
 # Module-level convenience functions
 
-def get_confluence_client(
-    profile: Optional[str] = None,
-    **kwargs
-) -> "ConfluenceClient":
+def get_confluence_client(**kwargs) -> "ConfluenceClient":
     """
     Get a configured Confluence client.
 
     Args:
-        profile: Profile name to use.
         **kwargs: Additional arguments passed to ConfluenceClient.
 
     Returns:
@@ -137,8 +101,8 @@ def get_confluence_client(
     """
     from .confluence_client import ConfluenceClient
 
-    manager = ConfigManager.get_instance(profile=profile)
-    
+    manager = ConfigManager.get_instance()
+
     # Get credentials and API settings from the manager
     credentials = manager.get_credentials()
     api_config = manager.get_api_config()
@@ -155,21 +119,3 @@ def get_confluence_client(
     client_kwargs.update(kwargs)
 
     return ConfluenceClient(**client_kwargs)
-
-
-def get_default_space(profile: Optional[str] = None) -> Optional[str]:
-    """
-    Get the default space key from configuration.
-    """
-    manager = ConfigManager.get_instance(profile=profile)
-    profile_config = manager.get_profile_config()
-    return profile_config.get("default_space")
-
-
-def get_space_keys(profile: Optional[str] = None) -> list:
-    """
-    Get the list of configured space keys.
-    """
-    manager = ConfigManager.get_instance(profile=profile)
-    profile_config = manager.get_profile_config()
-    return profile_config.get("space_keys", [])

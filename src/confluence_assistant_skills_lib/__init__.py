@@ -5,7 +5,7 @@ Python library for Confluence Cloud REST API - shared utilities for Confluence a
 
 This module provides common utilities for all Confluence skills:
 - ConfluenceClient: HTTP client with retry logic
-- ConfigManager: Multi-source configuration
+- ConfigManager: Environment variable configuration
 - Error handling: Exception hierarchy and decorators
 - Validators: Input validation utilities
 - Formatters: Output formatting utilities
@@ -13,17 +13,21 @@ This module provides common utilities for all Confluence skills:
 - XHTML Helper: Legacy storage format utilities
 - Cache: Response caching
 
+Required Environment Variables:
+    CONFLUENCE_SITE_URL - Confluence Cloud URL (e.g., https://your-site.atlassian.net)
+    CONFLUENCE_EMAIL - Email address for authentication
+    CONFLUENCE_API_TOKEN - API token for authentication
+
 Usage:
     from confluence_assistant_skills_lib import (
         ConfluenceClient,
         get_confluence_client,
-        get_config,
         handle_errors,
         ValidationError,
     )
 
-    # Get a configured client
-    client = get_confluence_client(profile="production")
+    # Get a configured client (uses environment variables)
+    client = get_confluence_client()
 
     # Or create directly
     client = ConfluenceClient(
@@ -45,8 +49,6 @@ from .confluence_client import ConfluenceClient, create_client
 from .config_manager import (
     ConfigManager,
     get_confluence_client,
-    get_default_space,
-    get_space_keys,
 )
 
 # Errors
@@ -154,8 +156,6 @@ __all__ = [
     # Config
     "ConfigManager",
     "get_confluence_client",
-    "get_default_space",
-    "get_space_keys",
     # Errors
     "ConfluenceError",
     "AuthenticationError",
