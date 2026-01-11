@@ -19,7 +19,7 @@ Required Environment Variables:
     CONFLUENCE_API_TOKEN - API token for authentication
 
 Usage:
-    from confluence_assistant_skills_lib import (
+    from confluence_assistant_skills import (
         ConfluenceClient,
         get_confluence_client,
         handle_errors,

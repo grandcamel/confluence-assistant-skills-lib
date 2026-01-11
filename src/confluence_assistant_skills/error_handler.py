@@ -103,35 +103,37 @@ def handle_confluence_error(
     message = extract_error_message(response)
     message = sanitize_error_message(message)
 
-    error_kwargs = {
-        "message": message,
+    base_kwargs = {
         "status_code": status_code,
         "response_data": response.text,
         "operation": operation,
     }
 
     if status_code == 400:
-        raise ValidationError(**error_kwargs)
+        raise ValidationError(message=message, **base_kwargs)
     elif status_code == 401:
-        raise AuthenticationError("Authentication failed. Check your email and API token.", **error_kwargs)
+        raise AuthenticationError(
+            message="Authentication failed. Check your email and API token.",
+            **base_kwargs
+        )
     elif status_code == 403:
-        raise PermissionError(f"Permission denied: {message}", **error_kwargs)
+        raise PermissionError(message=f"Permission denied: {message}", **base_kwargs)
     elif status_code == 404:
-        raise NotFoundError(**error_kwargs)
+        raise NotFoundError(message=message, **base_kwargs)
     elif status_code == 409:
-        raise ConflictError(**error_kwargs)
+        raise ConflictError(message=message, **base_kwargs)
     elif status_code == 429:
         retry_after_str = response.headers.get("Retry-After")
         retry_after = int(retry_after_str) if retry_after_str and retry_after_str.isdigit() else None
         raise RateLimitError(
-            f"Rate limit exceeded. Retry after {retry_after or 'unknown'} seconds.",
+            message=f"Rate limit exceeded. Retry after {retry_after or 'unknown'} seconds.",
             retry_after=retry_after,
-            **error_kwargs,
+            **base_kwargs,
         )
     elif 500 <= status_code < 600:
-        raise ServerError(f"Confluence server error: {message}", **error_kwargs)
+        raise ServerError(message=f"Confluence server error: {message}", **base_kwargs)
     else:
-        raise ConfluenceError(**error_kwargs)
+        raise ConfluenceError(message=message, **base_kwargs)
 
 
 def print_error(

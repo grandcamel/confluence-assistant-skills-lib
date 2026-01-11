@@ -16,7 +16,7 @@ pip install -e ".[dev]"
 pytest
 
 # Run tests with coverage
-pytest --cov=src/confluence_assistant_skills_lib
+pytest --cov=src/confluence_assistant_skills
 
 # Run a single test file
 pytest tests/test_validators.py
@@ -27,7 +27,7 @@ pytest tests/test_validators.py::test_validate_page_id
 
 ## Architecture
 
-The library is organized into focused modules under `src/confluence_assistant_skills_lib/`:
+The library is organized into focused modules under `src/confluence_assistant_skills/`:
 
 - **confluence_client.py** - HTTP client with retry logic, pagination, and file upload/download. Uses `requests` with exponential backoff for 429/5xx errors.
 - **config_manager.py** - Multi-source configuration from environment variables and JSON profiles (`.claude/settings.local.json`)

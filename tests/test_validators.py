@@ -2,7 +2,7 @@
 
 import pytest
 from pathlib import Path
-from confluence_assistant_skills_lib import (
+from confluence_assistant_skills import (
     validate_page_id,
     validate_space_key,
     validate_cql,
@@ -15,7 +15,7 @@ from confluence_assistant_skills_lib import (
     validate_issue_key,
     validate_jql_query,
 )
-from confluence_assistant_skills_lib.validators import ValidationError
+from confluence_assistant_skills.validators import ValidationError
 
 
 class TestValidatePageId:
@@ -134,21 +134,27 @@ class TestValidateUrl:
     def test_strips_trailing_slash(self):
         assert validate_url("https://example.com/") == "https://example.com"
 
-    def test_http_raises_error_by_default(self):
-        with pytest.raises(ValidationError):
-            validate_url("http://example.com")
-
-    def test_http_allowed_when_specified(self):
+    def test_http_allowed_by_default(self):
+        # HTTP is allowed by default in the base library
         url = "http://example.com"
-        assert validate_url(url, require_https=False) == url
+        assert validate_url(url) == url
 
-    def test_atlassian_check(self):
+    def test_http_disallowed_when_require_https(self):
         with pytest.raises(ValidationError):
-            validate_url("https://example.com", require_atlassian=True)
+            validate_url("http://example.com", require_https=True)
+
+    def test_https_allowed_when_require_https(self):
+        url = "https://example.com"
+        assert validate_url(url, require_https=True) == url
+
+    def test_atlassian_domain_check(self):
+        # Use allowed_domains instead of require_atlassian
+        with pytest.raises(ValidationError):
+            validate_url("https://example.com", allowed_domains=[".atlassian.net"])
 
     def test_valid_atlassian_url(self):
         url = "https://mysite.atlassian.net"
-        assert validate_url(url, require_atlassian=True) == url
+        assert validate_url(url, allowed_domains=[".atlassian.net"]) == url
 
 
 class TestValidateEmail:

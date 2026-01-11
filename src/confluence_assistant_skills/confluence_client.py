@@ -8,7 +8,7 @@ HTTP client for Confluence Cloud REST API with:
 - Support for v2 (primary) and v1 (legacy) API endpoints
 
 Usage:
-    from confluence_assistant_skills_lib import ConfluenceClient
+    from confluence_assistant_skills import ConfluenceClient
 
     client = ConfluenceClient(
         base_url="https://your-site.atlassian.net",

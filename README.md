@@ -26,7 +26,7 @@ pip install confluence-assistant-skills-lib
 ## Quick Start
 
 ```python
-from confluence_assistant_skills_lib import (
+from confluence_assistant_skills import (
     get_confluence_client,
     validate_page_id,
     format_page,
@@ -53,7 +53,7 @@ content = markdown_to_adf("# Hello\n\nThis is **bold** text.")
 ## Direct Client Usage
 
 ```python
-from confluence_assistant_skills_lib import ConfluenceClient
+from confluence_assistant_skills import ConfluenceClient
 
 client = ConfluenceClient(
     base_url="https://your-site.atlassian.net",
@@ -121,7 +121,7 @@ Create `.claude/settings.local.json`:
 Use profiles:
 
 ```python
-from confluence_assistant_skills_lib import get_confluence_client
+from confluence_assistant_skills import get_confluence_client
 
 # Uses default profile or CONFLUENCE_PROFILE env var
 client = get_confluence_client()
@@ -133,7 +133,7 @@ client = get_confluence_client(profile="sandbox")
 ## Error Handling
 
 ```python
-from confluence_assistant_skills_lib import (
+from confluence_assistant_skills import (
     handle_errors,
     ConfluenceError,
     AuthenticationError,
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 ## Validators
 
 ```python
-from confluence_assistant_skills_lib import (
+from confluence_assistant_skills import (
     validate_page_id,      # Numeric string validation
     validate_space_key,    # Space key format
     validate_cql,          # CQL query syntax
@@ -176,7 +176,7 @@ cql = validate_cql('space = "DOCS"')         # Validates syntax
 ## ADF Conversion
 
 ```python
-from confluence_assistant_skills_lib import (
+from confluence_assistant_skills import (
     markdown_to_adf,
     adf_to_markdown,
     text_to_adf,
@@ -204,7 +204,7 @@ print("Hello")
 markdown = adf_to_markdown(adf)
 
 # Build ADF programmatically
-from confluence_assistant_skills_lib import create_adf_doc
+from confluence_assistant_skills import create_adf_doc
 doc = create_adf_doc([
     create_heading("Title", level=1),
     create_paragraph(text="Hello, World!"),
@@ -215,7 +215,7 @@ doc = create_adf_doc([
 ## Caching
 
 ```python
-from confluence_assistant_skills_lib import Cache, cached
+from confluence_assistant_skills import Cache, cached
 
 # Direct cache usage
 cache = Cache(default_ttl=300)  # 5 minutes
@@ -299,7 +299,7 @@ pip install -e ".[dev]"
 pytest
 
 # Run with coverage
-pytest --cov=src/confluence_assistant_skills_lib
+pytest --cov=src/confluence_assistant_skills
 ```
 
 ## License

@@ -14,7 +14,7 @@ XHTML Storage Format Documentation:
 https://confluence.atlassian.com/doc/confluence-storage-format-790796544.html
 
 Usage:
-    from confluence_assistant_skills_lib import xhtml_to_markdown, markdown_to_xhtml
+    from confluence_assistant_skills import xhtml_to_markdown, markdown_to_xhtml
 
     # Convert XHTML to Markdown
     markdown = xhtml_to_markdown(storage_format_html)

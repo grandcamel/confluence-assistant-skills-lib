@@ -14,7 +14,7 @@ ADF Documentation:
 https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/
 
 Usage:
-    from confluence_assistant_skills_lib import text_to_adf, markdown_to_adf, adf_to_text
+    from confluence_assistant_skills import text_to_adf, markdown_to_adf, adf_to_text
 
     # Create ADF from text
     adf = text_to_adf("Hello, world!")

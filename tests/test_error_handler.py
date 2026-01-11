@@ -2,7 +2,7 @@
 
 import pytest
 from unittest.mock import Mock
-from confluence_assistant_skills_lib import (
+from confluence_assistant_skills import (
     ConfluenceError,
     AuthenticationError,
     PermissionError,
@@ -14,7 +14,7 @@ from confluence_assistant_skills_lib import (
     sanitize_error_message,
     extract_error_message,
 )
-from confluence_assistant_skills_lib.error_handler import ValidationError
+from confluence_assistant_skills.error_handler import ValidationError
 
 
 class TestConfluenceError:
@@ -26,7 +26,7 @@ class TestConfluenceError:
 
     def test_with_status_code(self):
         error = ConfluenceError("Error", status_code=404)
-        assert "(404)" in str(error)
+        assert "(HTTP 404)" in str(error)
 
     def test_with_operation(self):
         error = ConfluenceError("Error", operation="get page")

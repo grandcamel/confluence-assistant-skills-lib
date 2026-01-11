@@ -134,7 +134,7 @@ def validate_label(
 
 
 def validate_limit(
-    limit: Union[str, int],
+    limit: Union[str, int, None],
     field_name: str = "limit",
     min_value: int = 1,
     max_value: int = 250,
@@ -142,8 +142,20 @@ def validate_limit(
 ) -> int:
     """
     Validate a pagination limit.
+
+    Args:
+        limit: The limit value to validate (can be None for default)
+        field_name: Name of the field for error messages
+        min_value: Minimum allowed value
+        max_value: Maximum allowed value
+        default: Default value to use when limit is None
+
+    Returns:
+        Validated limit as integer
     """
-    return validate_int(limit, field_name, min_value, max_value, default)
+    if limit is None:
+        return default
+    return validate_int(limit, field_name, min_value, max_value, allow_none=False)
 
 
 # Atlassian-shared validators (Jira & Confluence)

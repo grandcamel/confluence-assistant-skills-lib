@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "confluence-assistant-skills-lib"
+name = "confluence-assistant-skills"
 dynamic = ["version"]
 description = "Python library for Confluence Cloud REST API - shared utilities for Confluence automation"
 readme = "README.md"
@@ -39,7 +39,11 @@ classifiers = [
 dependencies = [
     "requests>=2.28.0",
     "assistant-skills-lib>=0.2.1",
+    "click>=8.0.0",
 ]
+
+[project.scripts]
+confluence-as = "confluence_assistant_skills.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -48,6 +52,9 @@ dev = [
     "pytest-cov>=4.0.0",
     "responses>=0.23.0",
     "coverage>=7.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.8.0",
+    "bandit>=1.7.0",
 ]
 
 [project.urls]
@@ -58,7 +65,7 @@ Issues = "https://github.com/grandcamel/confluence-assistant-skills-lib/issues"
 Changelog = "https://github.com/grandcamel/confluence-assistant-skills-lib/releases"
 
 [tool.hatch.version]
-path = "src/confluence_assistant_skills_lib/__init__.py"
+path = "src/confluence_assistant_skills/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -66,7 +73,7 @@ include = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/confluence_assistant_skills_lib"]
+packages = ["src/confluence_assistant_skills"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -75,7 +82,7 @@ python_functions = ["test_*"]
 addopts = "-v --tb=short"
 
 [tool.coverage.run]
-source = ["src/confluence_assistant_skills_lib"]
+source = ["src/confluence_assistant_skills"]
 branch = true
 
 [tool.coverage.report]

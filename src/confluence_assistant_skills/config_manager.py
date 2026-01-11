@@ -13,7 +13,7 @@ Required Environment Variables:
     CONFLUENCE_SITE_URL - Confluence site URL (e.g., https://your-site.atlassian.net)
 
 Usage:
-    from confluence_assistant_skills_lib import get_confluence_client
+    from confluence_assistant_skills import get_confluence_client
 
     # Get a configured client
     client = get_confluence_client()

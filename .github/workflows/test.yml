@@ -34,7 +34,7 @@ jobs:
       - name: Run tests with coverage
         if: matrix.python-version == '3.11'
         run: |
-          pytest --cov=src/confluence_assistant_skills_lib --cov-report=xml
+          pytest --cov=src/confluence_assistant_skills --cov-report=xml
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.11'

@@ -1,7 +1,7 @@
 """Tests for adf_helper module."""
 
 import pytest
-from confluence_assistant_skills_lib import (
+from confluence_assistant_skills import (
     create_adf_doc,
     create_paragraph,
     create_text,
