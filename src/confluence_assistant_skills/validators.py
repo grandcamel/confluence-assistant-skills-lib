@@ -27,6 +27,19 @@ from .error_handler import ValidationError
 def validate_page_id(page_id: Union[str, int], field_name: str = "page_id") -> str:
     """
     Validate a Confluence page ID.
+
+    Page IDs in Confluence are always numeric strings. This function accepts
+    both string and integer inputs and returns a validated string.
+
+    Args:
+        page_id: The page ID to validate (string or integer).
+        field_name: Name of the field for error messages.
+
+    Returns:
+        Validated page ID as a string.
+
+    Raises:
+        ValidationError: If page_id is empty or not numeric.
     """
     page_id_str = validate_required(str(page_id), field_name)
     if not page_id_str.isdigit():
@@ -45,6 +58,23 @@ def validate_space_key(
 ) -> str:
     """
     Validate a Confluence space key.
+
+    Space keys must be 2-255 characters, start with a letter, and contain
+    only letters, numbers, and underscores. By default, the returned key
+    is uppercased.
+
+    Args:
+        space_key: The space key to validate.
+        field_name: Name of the field for error messages.
+        allow_lowercase: If True (default), accept lowercase input and
+            return uppercase. If False, return as-is.
+
+    Returns:
+        Validated space key (uppercase by default).
+
+    Raises:
+        ValidationError: If space_key is empty, wrong length, or contains
+            invalid characters.
     """
     space_key = validate_required(space_key, field_name)
 
@@ -88,7 +118,20 @@ def _validate_balanced_syntax(query: str, field_name: str) -> None:
 
 def validate_cql(cql: str, field_name: str = "cql") -> str:
     """
-    Basic validation for a CQL query.
+    Validate a CQL (Confluence Query Language) query.
+
+    Performs basic syntax validation including checking for balanced
+    quotes and parentheses. Does not validate CQL semantics.
+
+    Args:
+        cql: The CQL query string to validate.
+        field_name: Name of the field for error messages.
+
+    Returns:
+        The validated CQL query string.
+
+    Raises:
+        ValidationError: If cql is empty or has unbalanced quotes/parentheses.
     """
     cql = validate_required(cql, field_name)
     _validate_balanced_syntax(cql, field_name)
@@ -102,6 +145,21 @@ def validate_content_type(
 ) -> str:
     """
     Validate a Confluence content type.
+
+    By default, valid content types are: page, blogpost, comment, attachment.
+    Custom allowed types can be provided.
+
+    Args:
+        content_type: The content type to validate.
+        field_name: Name of the field for error messages.
+        allowed: List of allowed content types. Defaults to
+            ['page', 'blogpost', 'comment', 'attachment'].
+
+    Returns:
+        Validated content type (lowercase).
+
+    Raises:
+        ValidationError: If content_type is empty or not in allowed list.
     """
     if allowed is None:
         allowed = ["page", "blogpost", "comment", "attachment"]
@@ -121,7 +179,23 @@ def validate_title(
     max_length: int = 255,
 ) -> str:
     """
-    Validate a page or content title.
+    Validate a Confluence page or content title.
+
+    Titles cannot contain certain special characters that are reserved
+    by Confluence: colon (:), pipe (|), at sign (@), forward slash (/),
+    and backslash (\\).
+
+    Args:
+        title: The title to validate.
+        field_name: Name of the field for error messages.
+        max_length: Maximum allowed length (default 255).
+
+    Returns:
+        The validated title string.
+
+    Raises:
+        ValidationError: If title is empty, too long, or contains
+            invalid characters.
     """
     title = validate_required(title, field_name)
     if len(title) > max_length:
@@ -147,6 +221,20 @@ def validate_label(
 ) -> str:
     """
     Validate a Confluence label.
+
+    Labels must be lowercase, contain no spaces, and use only alphanumeric
+    characters, hyphens, and underscores. Maximum length is 255 characters.
+
+    Args:
+        label: The label to validate.
+        field_name: Name of the field for error messages.
+
+    Returns:
+        Validated label (lowercase).
+
+    Raises:
+        ValidationError: If label is empty, too long, contains spaces,
+            or has invalid characters.
     """
     label = validate_required(label, field_name).lower()
     if len(label) > 255:
@@ -202,6 +290,19 @@ def validate_issue_key(
 ) -> str:
     """
     Validate a JIRA issue key.
+
+    Issue keys follow the format PROJECT-123 where PROJECT is 1-10 uppercase
+    letters/numbers (starting with a letter) followed by a hyphen and a number.
+
+    Args:
+        issue_key: The issue key to validate (e.g., "PROJ-123").
+        field_name: Name of the field for error messages.
+
+    Returns:
+        Validated issue key (uppercase).
+
+    Raises:
+        ValidationError: If issue_key is empty or doesn't match the format.
     """
     issue_key = validate_required(issue_key, field_name).upper()
     pattern = r"^[A-Z][A-Z0-9_]{0,9}-\d+$"
@@ -219,7 +320,20 @@ def validate_jql_query(
     field_name: str = "jql",
 ) -> str:
     """
-    Basic validation for a JQL query.
+    Validate a JQL (JIRA Query Language) query.
+
+    Performs basic syntax validation including checking for balanced
+    quotes and parentheses. Does not validate JQL semantics.
+
+    Args:
+        jql: The JQL query string to validate.
+        field_name: Name of the field for error messages.
+
+    Returns:
+        The validated JQL query string.
+
+    Raises:
+        ValidationError: If jql is empty or has unbalanced quotes/parentheses.
     """
     jql = validate_required(jql, field_name)
     _validate_balanced_syntax(jql, field_name)
