@@ -51,3 +51,36 @@ CONFLUENCE_SITE_URL=https://your-site.atlassian.net
 CONFLUENCE_EMAIL=your-email@example.com
 CONFLUENCE_API_TOKEN=your-api-token
 ```
+
+## PyPI Publishing
+
+### Package Name
+
+Published to PyPI as `confluence-assistant-skills-lib`:
+
+```bash
+pip install confluence-assistant-skills-lib
+```
+
+**Important:** This is the library package. The CLI is published separately as `confluence-assistant-skills`.
+
+### GitHub Actions Trusted Publishers
+
+Trusted Publishers on PyPI are configured **per-package**, not per-repository:
+
+1. Each package (`confluence-assistant-skills`, `confluence-assistant-skills-lib`) needs its own Trusted Publisher configuration
+2. Configure at: PyPI Project Settings → Publishing → Add a new publisher
+3. Settings:
+   - Owner: `grandcamel`
+   - Repository: `confluence-assistant-skills-lib` (or appropriate repo)
+   - Workflow: `publish.yml`
+   - Environment: `pypi` (optional but recommended)
+
+### Release Process
+
+```bash
+# Bump version in pyproject.toml, then:
+git tag v0.2.0
+git push origin v0.2.0
+# GitHub Actions publishes to PyPI automatically
+```
