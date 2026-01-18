@@ -275,3 +275,301 @@ class TestValidateAdf:
     def test_missing_content(self):
         with pytest.raises(ValueError):
             validate_adf({"type": "doc"})
+
+    def test_content_not_list(self):
+        with pytest.raises(ValueError, match="content must be a list"):
+            validate_adf({"type": "doc", "content": "not a list"})
+
+
+class TestCreateParagraphEdgeCases:
+    """Additional tests for create_paragraph edge cases."""
+
+    def test_no_text_no_content(self):
+        """Paragraph with neither text nor content creates empty paragraph."""
+        para = create_paragraph()
+        assert para["type"] == "paragraph"
+        assert para["content"] == []
+
+
+class TestMarkdownToAdfExtended:
+    """Extended tests for markdown_to_adf covering more cases."""
+
+    def test_empty_markdown(self):
+        """Empty markdown returns empty paragraph."""
+        adf = markdown_to_adf("")
+        assert adf["type"] == "doc"
+        assert len(adf["content"]) == 1
+        assert adf["content"][0]["type"] == "paragraph"
+
+    def test_blockquote(self):
+        """Blockquote is converted correctly."""
+        adf = markdown_to_adf("> This is a quote")
+        assert adf["content"][0]["type"] == "blockquote"
+
+    def test_ordered_list(self):
+        """Ordered list is converted correctly."""
+        adf = markdown_to_adf("1. First\n2. Second")
+        assert adf["content"][0]["type"] == "orderedList"
+
+    def test_italic_asterisk(self):
+        """Italic with asterisk is parsed."""
+        adf = markdown_to_adf("This is *italic* text")
+        content = adf["content"][0]["content"]
+        assert any(
+            node.get("marks", [{}])[0].get("type") == "em"
+            for node in content
+            if "marks" in node
+        )
+
+    def test_italic_underscore(self):
+        """Italic with underscore is parsed."""
+        adf = markdown_to_adf("This is _italic_ text")
+        content = adf["content"][0]["content"]
+        assert any(
+            node.get("marks", [{}])[0].get("type") == "em"
+            for node in content
+            if "marks" in node
+        )
+
+    def test_bold_underscore(self):
+        """Bold with underscore is parsed."""
+        adf = markdown_to_adf("This is __bold__ text")
+        content = adf["content"][0]["content"]
+        assert any(
+            node.get("marks", [{}])[0].get("type") == "strong"
+            for node in content
+            if "marks" in node
+        )
+
+    def test_inline_code(self):
+        """Inline code is parsed."""
+        adf = markdown_to_adf("Use `code` here")
+        content = adf["content"][0]["content"]
+        assert any(
+            node.get("marks", [{}])[0].get("type") == "code"
+            for node in content
+            if "marks" in node
+        )
+
+    def test_link(self):
+        """Links are parsed."""
+        adf = markdown_to_adf("Click [here](https://example.com) now")
+        content = adf["content"][0]["content"]
+        assert any(
+            node.get("marks", [{}])[0].get("type") == "link"
+            for node in content
+            if "marks" in node
+        )
+
+
+class TestAdfToTextExtended:
+    """Extended tests for adf_to_text covering more node types."""
+
+    def test_heading(self):
+        """Heading is converted to text."""
+        adf = create_adf_doc([create_heading("Title", level=2)])
+        text = adf_to_text(adf)
+        assert "Title" in text
+
+    def test_bullet_list(self):
+        """Bullet list is converted to text."""
+        adf = create_adf_doc([create_bullet_list(["Item 1", "Item 2"])])
+        text = adf_to_text(adf)
+        assert "- Item 1" in text
+        assert "- Item 2" in text
+
+    def test_ordered_list(self):
+        """Ordered list is converted to text."""
+        adf = create_adf_doc([create_ordered_list(["First", "Second"])])
+        text = adf_to_text(adf)
+        assert "- First" in text
+        assert "- Second" in text
+
+    def test_code_block(self):
+        """Code block is converted to text."""
+        adf = create_adf_doc([create_code_block("print('hello')", language="python")])
+        text = adf_to_text(adf)
+        assert "print('hello')" in text
+
+    def test_blockquote(self):
+        """Blockquote is converted to text."""
+        adf = create_adf_doc([create_blockquote("Quote text")])
+        text = adf_to_text(adf)
+        assert "> Quote text" in text
+
+    def test_table(self):
+        """Table is converted to text."""
+        adf = create_adf_doc([create_table([["A", "B"], ["C", "D"]])])
+        text = adf_to_text(adf)
+        assert "A" in text
+        assert "B" in text
+
+    def test_horizontal_rule(self):
+        """Horizontal rule node exists but returns empty (no text content)."""
+        adf = create_adf_doc([create_rule()])
+        text = adf_to_text(adf)
+        # Rule nodes have no text content, so they return empty
+        assert text == ""
+
+    def test_hard_break(self):
+        """Hard break node is handled."""
+        adf = {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [
+                        {"type": "text", "text": "Line 1"},
+                        {"type": "hardBreak"},
+                        {"type": "text", "text": "Line 2"},
+                    ],
+                }
+            ],
+        }
+        text = adf_to_text(adf)
+        assert "Line 1" in text
+        assert "Line 2" in text
+
+
+class TestAdfToMarkdownExtended:
+    """Extended tests for adf_to_markdown covering more cases."""
+
+    def test_empty_adf(self):
+        """Empty ADF returns empty string."""
+        assert adf_to_markdown({}) == ""
+        assert adf_to_markdown(None) == ""
+
+    def test_italic_mark(self):
+        """Italic mark is converted to markdown."""
+        adf = {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [
+                        {"type": "text", "text": "italic", "marks": [{"type": "em"}]}
+                    ],
+                }
+            ],
+        }
+        md = adf_to_markdown(adf)
+        assert "*italic*" in md
+
+    def test_code_mark(self):
+        """Code mark is converted to markdown."""
+        adf = {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [
+                        {"type": "text", "text": "code", "marks": [{"type": "code"}]}
+                    ],
+                }
+            ],
+        }
+        md = adf_to_markdown(adf)
+        assert "`code`" in md
+
+    def test_link_mark(self):
+        """Link mark is converted to markdown."""
+        adf = {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "click",
+                            "marks": [
+                                {
+                                    "type": "link",
+                                    "attrs": {"href": "https://example.com"},
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ],
+        }
+        md = adf_to_markdown(adf)
+        assert "[click](https://example.com)" in md
+
+    def test_strike_mark(self):
+        """Strikethrough mark is converted to markdown."""
+        adf = {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "deleted",
+                            "marks": [{"type": "strike"}],
+                        }
+                    ],
+                }
+            ],
+        }
+        md = adf_to_markdown(adf)
+        assert "~~deleted~~" in md
+
+    def test_ordered_list(self):
+        """Ordered list is converted to markdown."""
+        adf = create_adf_doc([create_ordered_list(["First", "Second"], start=1)])
+        md = adf_to_markdown(adf)
+        assert "1. First" in md
+        assert "2. Second" in md
+
+    def test_ordered_list_custom_start(self):
+        """Ordered list with custom start is converted correctly."""
+        adf = create_adf_doc([create_ordered_list(["Item"], start=5)])
+        md = adf_to_markdown(adf)
+        assert "5. Item" in md
+
+    def test_blockquote(self):
+        """Blockquote is converted to markdown."""
+        adf = create_adf_doc([create_blockquote("Quote text")])
+        md = adf_to_markdown(adf)
+        assert "> Quote text" in md
+
+    def test_horizontal_rule(self):
+        """Horizontal rule is converted to markdown."""
+        adf = create_adf_doc([create_rule()])
+        md = adf_to_markdown(adf)
+        assert "---" in md
+
+    def test_table(self):
+        """Table is converted to markdown."""
+        adf = create_adf_doc([create_table([["H1", "H2"], ["V1", "V2"]])])
+        md = adf_to_markdown(adf)
+        assert "| H1 | H2 |" in md
+        assert "| --- | --- |" in md
+        assert "| V1 | V2 |" in md
+
+    def test_hard_break(self):
+        """Hard break is converted to markdown line break."""
+        adf = {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [
+                        {"type": "text", "text": "Line 1"},
+                        {"type": "hardBreak"},
+                        {"type": "text", "text": "Line 2"},
+                    ],
+                }
+            ],
+        }
+        md = adf_to_markdown(adf)
+        assert "Line 1" in md
+        assert "Line 2" in md
