@@ -63,10 +63,14 @@ def get_page_restrictions(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "restrictions": restrictions,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "restrictions": restrictions,
+                }
+            )
+        )
     else:
         click.echo(f"\nRestrictions on: {page_title} ({page_id})")
         click.echo(f"{'=' * 60}\n")
@@ -85,7 +89,9 @@ def get_page_restrictions(
             update_users = update_restrictions.get("user", {}).get("results", [])
             update_groups = update_restrictions.get("group", {}).get("results", [])
 
-            has_restrictions = read_users or read_groups or update_users or update_groups
+            has_restrictions = (
+                read_users or read_groups or update_users or update_groups
+            )
 
             if not has_restrictions:
                 click.echo("No restrictions set on this page.")
@@ -93,7 +99,9 @@ def get_page_restrictions(
                 if read_users or read_groups:
                     click.echo("READ restrictions:")
                     for user in read_users:
-                        click.echo(f"  - User: {user.get('displayName', user.get('username', 'Unknown'))}")
+                        click.echo(
+                            f"  - User: {user.get('displayName', user.get('username', 'Unknown'))}"
+                        )
                     for group in read_groups:
                         click.echo(f"  - Group: {group.get('name', 'Unknown')}")
                     click.echo()
@@ -101,7 +109,9 @@ def get_page_restrictions(
                 if update_users or update_groups:
                     click.echo("UPDATE restrictions:")
                     for user in update_users:
-                        click.echo(f"  - User: {user.get('displayName', user.get('username', 'Unknown'))}")
+                        click.echo(
+                            f"  - User: {user.get('displayName', user.get('username', 'Unknown'))}"
+                        )
                     for group in update_groups:
                         click.echo(f"  - Group: {group.get('name', 'Unknown')}")
         else:
@@ -173,13 +183,17 @@ def add_page_restriction(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "operation": operation,
-            "user": user,
-            "group": group_name,
-            "result": result,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "operation": operation,
+                    "user": user,
+                    "group": group_name,
+                    "result": result,
+                }
+            )
+        )
     else:
         click.echo(f"\nRestriction added to: {page_title}")
         click.echo(f"  Operation: {operation}")
@@ -258,13 +272,17 @@ def remove_page_restriction(
             removed_count += 1
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "operation": operation,
-            "removedUser": user,
-            "removedGroup": group_name,
-            "removedAll": remove_all,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "operation": operation,
+                    "removedUser": user,
+                    "removedGroup": group_name,
+                    "removedAll": remove_all,
+                }
+            )
+        )
     else:
         click.echo(f"\nRestriction removed from: {page_title}")
         click.echo(f"  Operation: {operation}")
@@ -311,17 +329,23 @@ def get_space_permissions(
     space_id = space.get("id")
 
     # Get permissions using v2 API
-    permissions = list(client.paginate(
-        f"/api/v2/spaces/{space_id}/permissions",
-        operation="get space permissions",
-    ))
+    permissions = list(
+        client.paginate(
+            f"/api/v2/spaces/{space_id}/permissions",
+            operation="get space permissions",
+        )
+    )
 
     if output == "json":
-        click.echo(format_json({
-            "space": {"key": space_key, "name": space_name, "id": space_id},
-            "permissions": permissions,
-            "count": len(permissions),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "space": {"key": space_key, "name": space_name, "id": space_id},
+                    "permissions": permissions,
+                    "count": len(permissions),
+                }
+            )
+        )
     else:
         click.echo(f"\nPermissions for: {space_name} ({space_key})")
         click.echo(f"{'=' * 60}\n")
@@ -354,20 +378,24 @@ def get_space_permissions(
 
             if user_perms:
                 click.echo("User Permissions:")
-                click.echo(format_table(
-                    user_perms,
-                    columns=["name", "operation"],
-                    headers=["User", "Operation"],
-                ))
+                click.echo(
+                    format_table(
+                        user_perms,
+                        columns=["name", "operation"],
+                        headers=["User", "Operation"],
+                    )
+                )
                 click.echo()
 
             if group_perms:
                 click.echo("Group Permissions:")
-                click.echo(format_table(
-                    group_perms,
-                    columns=["name", "operation"],
-                    headers=["Group", "Operation"],
-                ))
+                click.echo(
+                    format_table(
+                        group_perms,
+                        columns=["name", "operation"],
+                        headers=["Group", "Operation"],
+                    )
+                )
 
     print_success(f"Found {len(permissions)} permission(s)")
 
@@ -446,10 +474,14 @@ def add_space_permission(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "space": {"key": space_key, "name": space_name, "id": space_id},
-            "permission": result,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "space": {"key": space_key, "name": space_name, "id": space_id},
+                    "permission": result,
+                }
+            )
+        )
     else:
         click.echo(f"\nPermission added to: {space_name}")
         click.echo(f"  Operation: {operation} ({target})")
@@ -466,8 +498,12 @@ def add_space_permission(
 @click.argument("space_key")
 @click.option("--permission-id", "-p", help="Permission ID to remove")
 @click.option("--user", help="User permission to remove (with --operation)")
-@click.option("--group", "group_name", help="Group permission to remove (with --operation)")
-@click.option("--operation", help="Operation to match (required with --user or --group)")
+@click.option(
+    "--group", "group_name", help="Group permission to remove (with --operation)"
+)
+@click.option(
+    "--operation", help="Operation to match (required with --user or --group)"
+)
 @click.option(
     "--output",
     "-o",
@@ -492,7 +528,9 @@ def remove_space_permission(
     space_key = validate_space_key(space_key)
 
     if not permission_id and not user and not group_name:
-        raise ValidationError("Either --permission-id, --user, or --group must be specified")
+        raise ValidationError(
+            "Either --permission-id, --user, or --group must be specified"
+        )
 
     if (user or group_name) and not operation:
         raise ValidationError("--operation is required when using --user or --group")
@@ -515,10 +553,12 @@ def remove_space_permission(
         removed_ids.append(permission_id)
     else:
         # Find and remove matching permissions
-        permissions = list(client.paginate(
-            f"/api/v2/spaces/{space_id}/permissions",
-            operation="get permissions",
-        ))
+        permissions = list(
+            client.paginate(
+                f"/api/v2/spaces/{space_id}/permissions",
+                operation="get permissions",
+            )
+        )
 
         for perm in permissions:
             principal = perm.get("principal", {})
@@ -533,7 +573,11 @@ def remove_space_permission(
                     operation="remove user permission",
                 )
                 removed_ids.append(perm["id"])
-            elif group_name and principal.get("type") == "group" and principal.get("id") == group_name:
+            elif (
+                group_name
+                and principal.get("type") == "group"
+                and principal.get("id") == group_name
+            ):
                 client.delete(
                     f"/api/v2/spaces/{space_id}/permissions/{perm['id']}",
                     operation="remove group permission",
@@ -541,11 +585,15 @@ def remove_space_permission(
                 removed_ids.append(perm["id"])
 
     if output == "json":
-        click.echo(format_json({
-            "space": {"key": space_key, "name": space_name, "id": space_id},
-            "removedPermissions": removed_ids,
-            "count": len(removed_ids),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "space": {"key": space_key, "name": space_name, "id": space_id},
+                    "removedPermissions": removed_ids,
+                    "count": len(removed_ids),
+                }
+            )
+        )
     else:
         click.echo(f"\nPermission(s) removed from: {space_name}")
         if permission_id:
@@ -563,4 +611,6 @@ def remove_space_permission(
             click.echo(f"  Removed: {len(removed_ids)} permission(s)")
 
     if removed_ids:
-        print_success(f"Removed {len(removed_ids)} permission(s) from space {space_key}")
+        print_success(
+            f"Removed {len(removed_ids)} permission(s) from space {space_key}"
+        )

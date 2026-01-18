@@ -42,14 +42,12 @@ def create_adf_doc(content: List[Dict[str, Any]]) -> Dict[str, Any]:
     Returns:
         Complete ADF document
     """
-    return {
-        "type": "doc",
-        "version": 1,
-        "content": content
-    }
+    return {"type": "doc", "version": 1, "content": content}
 
 
-def create_paragraph(content: Optional[List[Dict[str, Any]]] = None, text: Optional[str] = None) -> Dict[str, Any]:
+def create_paragraph(
+    content: Optional[List[Dict[str, Any]]] = None, text: Optional[str] = None
+) -> Dict[str, Any]:
     """
     Create an ADF paragraph node.
 
@@ -65,13 +63,12 @@ def create_paragraph(content: Optional[List[Dict[str, Any]]] = None, text: Optio
     elif content is None:
         content = []
 
-    return {
-        "type": "paragraph",
-        "content": content
-    }
+    return {"type": "paragraph", "content": content}
 
 
-def create_text(text: str, marks: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+def create_text(
+    text: str, marks: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Any]:
     """
     Create an ADF text node.
 
@@ -82,10 +79,7 @@ def create_text(text: str, marks: Optional[List[Dict[str, Any]]] = None) -> Dict
     Returns:
         ADF text node
     """
-    node: Dict[str, Any] = {
-        "type": "text",
-        "text": text
-    }
+    node: Dict[str, Any] = {"type": "text", "text": text}
     if marks:
         node["marks"] = marks
     return node
@@ -106,7 +100,7 @@ def create_heading(text: str, level: int = 1) -> Dict[str, Any]:
     return {
         "type": "heading",
         "attrs": {"level": level},
-        "content": [create_text(text)]
+        "content": [create_text(text)],
     }
 
 
@@ -123,12 +117,9 @@ def create_bullet_list(items: List[str]) -> Dict[str, Any]:
     return {
         "type": "bulletList",
         "content": [
-            {
-                "type": "listItem",
-                "content": [create_paragraph(text=item)]
-            }
+            {"type": "listItem", "content": [create_paragraph(text=item)]}
             for item in items
-        ]
+        ],
     }
 
 
@@ -147,12 +138,9 @@ def create_ordered_list(items: List[str], start: int = 1) -> Dict[str, Any]:
         "type": "orderedList",
         "attrs": {"order": start},
         "content": [
-            {
-                "type": "listItem",
-                "content": [create_paragraph(text=item)]
-            }
+            {"type": "listItem", "content": [create_paragraph(text=item)]}
             for item in items
-        ]
+        ],
     }
 
 
@@ -167,10 +155,7 @@ def create_code_block(code: str, language: Optional[str] = None) -> Dict[str, An
     Returns:
         ADF codeBlock node
     """
-    node: Dict[str, Any] = {
-        "type": "codeBlock",
-        "content": [create_text(code)]
-    }
+    node: Dict[str, Any] = {"type": "codeBlock", "content": [create_text(code)]}
     if language:
         node["attrs"] = {"language": language}
     return node
@@ -186,10 +171,7 @@ def create_blockquote(text: str) -> Dict[str, Any]:
     Returns:
         ADF blockquote node
     """
-    return {
-        "type": "blockquote",
-        "content": [create_paragraph(text=text)]
-    }
+    return {"type": "blockquote", "content": [create_paragraph(text=text)]}
 
 
 def create_rule() -> Dict[str, Any]:
@@ -220,20 +202,13 @@ def create_table(rows: List[List[str]], header: bool = True) -> Dict[str, Any]:
         cell_type = "tableHeader" if (header and i == 0) else "tableCell"
 
         for cell_text in row:
-            cells.append({
-                "type": cell_type,
-                "content": [create_paragraph(text=str(cell_text))]
-            })
+            cells.append(
+                {"type": cell_type, "content": [create_paragraph(text=str(cell_text))]}
+            )
 
-        table_rows.append({
-            "type": "tableRow",
-            "content": cells
-        })
+        table_rows.append({"type": "tableRow", "content": cells})
 
-    return {
-        "type": "table",
-        "content": table_rows
-    }
+    return {"type": "table", "content": table_rows}
 
 
 def create_link(text: str, url: str) -> Dict[str, Any]:
@@ -247,10 +222,7 @@ def create_link(text: str, url: str) -> Dict[str, Any]:
     Returns:
         ADF text node with link mark
     """
-    return create_text(text, marks=[{
-        "type": "link",
-        "attrs": {"href": url}
-    }])
+    return create_text(text, marks=[{"type": "link", "attrs": {"href": url}}])
 
 
 def text_to_adf(text: str) -> Dict[str, Any]:
@@ -271,7 +243,7 @@ def text_to_adf(text: str) -> Dict[str, Any]:
         return create_adf_doc([create_paragraph(text="")])
 
     # Split on double newlines for paragraphs
-    paragraphs = re.split(r'\n\n+', text.strip())
+    paragraphs = re.split(r"\n\n+", text.strip())
     content = []
 
     for para in paragraphs:
@@ -314,32 +286,29 @@ def markdown_to_adf(markdown: str) -> Dict[str, Any]:
     # Convert blocks to ADF nodes
     content = []
     for block in blocks:
-        block_type = block['type']
+        block_type = block["type"]
 
-        if block_type == 'heading':
-            content.append(create_heading(block['content'], block['level']))
+        if block_type == "heading":
+            content.append(create_heading(block["content"], block["level"]))
 
-        elif block_type == 'horizontal_rule':
+        elif block_type == "horizontal_rule":
             content.append(create_rule())
 
-        elif block_type == 'code_block':
-            content.append(create_code_block(block['content'], block.get('language')))
+        elif block_type == "code_block":
+            content.append(create_code_block(block["content"], block.get("language")))
 
-        elif block_type == 'blockquote':
-            content.append(create_blockquote(block['content']))
+        elif block_type == "blockquote":
+            content.append(create_blockquote(block["content"]))
 
-        elif block_type == 'bullet_list':
-            content.append(create_bullet_list(block['items']))
+        elif block_type == "bullet_list":
+            content.append(create_bullet_list(block["items"]))
 
-        elif block_type == 'ordered_list':
-            content.append(create_ordered_list(block['items']))
+        elif block_type == "ordered_list":
+            content.append(create_ordered_list(block["items"]))
 
-        elif block_type == 'paragraph':
-            para_content = _parse_inline_markdown(block['content'])
-            content.append({
-                "type": "paragraph",
-                "content": para_content
-            })
+        elif block_type == "paragraph":
+            para_content = _parse_inline_markdown(block["content"])
+            content.append({"type": "paragraph", "content": para_content})
 
     return create_adf_doc(content if content else [create_paragraph(text="")])
 
@@ -364,13 +333,13 @@ def _parse_inline_markdown(text: str) -> List[Dict[str, Any]]:
     nodes = []
 
     # Pattern for inline elements
-    pattern = r'(\*\*(.+?)\*\*)|(__(.+?)__)|(\*(.+?)\*)|(_(.+?)_)|(`(.+?)`)|(\[([^\]]+)\]\(([^)]+)\))'
+    pattern = r"(\*\*(.+?)\*\*)|(__(.+?)__)|(\*(.+?)\*)|(_(.+?)_)|(`(.+?)`)|(\[([^\]]+)\]\(([^)]+)\))"
 
     last_end = 0
     for match in re.finditer(pattern, text):
         # Add text before match
         if match.start() > last_end:
-            nodes.append(create_text(text[last_end:match.start()]))
+            nodes.append(create_text(text[last_end : match.start()]))
 
         # Bold **text**
         if match.group(2):

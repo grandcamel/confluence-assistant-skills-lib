@@ -29,6 +29,7 @@ class MarkdownBlock(TypedDict, total=False):
         language: Programming language (for code_block only)
         items: List items (for bullet_list and ordered_list only)
     """
+
     type: str
     content: str
     level: int
@@ -51,12 +52,12 @@ def is_block_start(line: str) -> bool:
         blockquote, list item, or horizontal rule)
     """
     return bool(
-        line.startswith('#') or
-        line.startswith('```') or
-        line.startswith('>') or
-        re.match(r'^[-*]\s+', line) or
-        re.match(r'^\d+\.\s+', line) or
-        re.match(r'^[-*_]{3,}$', line)
+        line.startswith("#")
+        or line.startswith("```")
+        or line.startswith(">")
+        or re.match(r"^[-*]\s+", line)
+        or re.match(r"^\d+\.\s+", line)
+        or re.match(r"^[-*_]{3,}$", line)
     )
 
 
@@ -83,7 +84,7 @@ def parse_markdown(markdown: str) -> List[MarkdownBlock]:
         return []
 
     blocks: List[MarkdownBlock] = []
-    lines = markdown.split('\n')
+    lines = markdown.split("\n")
     i = 0
 
     while i < len(lines):
@@ -96,88 +97,104 @@ def parse_markdown(markdown: str) -> List[MarkdownBlock]:
             continue
 
         # Heading
-        heading_match = re.match(r'^(#{1,6})\s+(.+)$', stripped)
+        heading_match = re.match(r"^(#{1,6})\s+(.+)$", stripped)
         if heading_match:
-            blocks.append({
-                'type': 'heading',
-                'level': len(heading_match.group(1)),
-                'content': heading_match.group(2),
-            })
+            blocks.append(
+                {
+                    "type": "heading",
+                    "level": len(heading_match.group(1)),
+                    "content": heading_match.group(2),
+                }
+            )
             i += 1
             continue
 
         # Horizontal rule
-        if re.match(r'^[-*_]{3,}$', stripped):
-            blocks.append({'type': 'horizontal_rule'})
+        if re.match(r"^[-*_]{3,}$", stripped):
+            blocks.append({"type": "horizontal_rule"})
             i += 1
             continue
 
         # Code block (fenced)
-        if stripped.startswith('```'):
-            lang_match = re.match(r'^```(\w*)$', stripped)
-            language = lang_match.group(1) if lang_match and lang_match.group(1) else None
+        if stripped.startswith("```"):
+            lang_match = re.match(r"^```(\w*)$", stripped)
+            language = (
+                lang_match.group(1) if lang_match and lang_match.group(1) else None
+            )
             code_lines = []
             i += 1
-            while i < len(lines) and not lines[i].strip().startswith('```'):
+            while i < len(lines) and not lines[i].strip().startswith("```"):
                 code_lines.append(lines[i])
                 i += 1
-            blocks.append({
-                'type': 'code_block',
-                'content': '\n'.join(code_lines),
-                'language': language,
-            })
+            blocks.append(
+                {
+                    "type": "code_block",
+                    "content": "\n".join(code_lines),
+                    "language": language,
+                }
+            )
             i += 1  # Skip closing ```
             continue
 
         # Blockquote
-        if stripped.startswith('>'):
+        if stripped.startswith(">"):
             quote_lines = []
-            while i < len(lines) and lines[i].strip().startswith('>'):
-                quote_text = re.sub(r'^>\s*', '', lines[i].strip())
+            while i < len(lines) and lines[i].strip().startswith(">"):
+                quote_text = re.sub(r"^>\s*", "", lines[i].strip())
                 quote_lines.append(quote_text)
                 i += 1
-            blocks.append({
-                'type': 'blockquote',
-                'content': '\n'.join(quote_lines),
-            })
+            blocks.append(
+                {
+                    "type": "blockquote",
+                    "content": "\n".join(quote_lines),
+                }
+            )
             continue
 
         # Bullet list
-        if re.match(r'^[-*]\s+', stripped):
+        if re.match(r"^[-*]\s+", stripped):
             items = []
-            while i < len(lines) and re.match(r'^[-*]\s+', lines[i].strip()):
-                item_text = re.sub(r'^[-*]\s+', '', lines[i].strip())
+            while i < len(lines) and re.match(r"^[-*]\s+", lines[i].strip()):
+                item_text = re.sub(r"^[-*]\s+", "", lines[i].strip())
                 items.append(item_text)
                 i += 1
-            blocks.append({
-                'type': 'bullet_list',
-                'items': items,
-            })
+            blocks.append(
+                {
+                    "type": "bullet_list",
+                    "items": items,
+                }
+            )
             continue
 
         # Ordered list
-        if re.match(r'^\d+\.\s+', stripped):
+        if re.match(r"^\d+\.\s+", stripped):
             items = []
-            while i < len(lines) and re.match(r'^\d+\.\s+', lines[i].strip()):
-                item_text = re.sub(r'^\d+\.\s+', '', lines[i].strip())
+            while i < len(lines) and re.match(r"^\d+\.\s+", lines[i].strip()):
+                item_text = re.sub(r"^\d+\.\s+", "", lines[i].strip())
                 items.append(item_text)
                 i += 1
-            blocks.append({
-                'type': 'ordered_list',
-                'items': items,
-            })
+            blocks.append(
+                {
+                    "type": "ordered_list",
+                    "items": items,
+                }
+            )
             continue
 
         # Regular paragraph - collect consecutive non-block lines
         para_lines = []
-        while i < len(lines) and lines[i].strip() and not is_block_start(lines[i].strip()):
+        while (
+            i < len(lines) and lines[i].strip() and not is_block_start(lines[i].strip())
+        ):
             para_lines.append(lines[i].strip())
             i += 1
 
         if para_lines:
-            blocks.append({
-                'type': 'paragraph',
-                'content': ' '.join(para_lines),
-            })
+            blocks.append(
+                {
+                    "type": "paragraph",
+                    "content": " ".join(para_lines),
+                }
+            )
 
     return blocks

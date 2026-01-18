@@ -30,6 +30,7 @@ class E2ETestStatus(Enum):
 @dataclass
 class TestResult:
     """Result of a single test execution."""
+
     test_id: str
     name: str
     status: E2ETestStatus
@@ -42,6 +43,7 @@ class TestResult:
 @dataclass
 class SuiteResult:
     """Result of a test suite execution."""
+
     suite_name: str
     description: str
     tests: List[TestResult] = field(default_factory=list)
@@ -108,9 +110,12 @@ class ClaudeCodeRunner:
         cmd = [
             "claude",
             "--print",
-            "--output-format", "text",
-            "--model", self.model,
-            "--max-turns", "1",
+            "--output-format",
+            "text",
+            "--model",
+            self.model,
+            "--max-turns",
+            "1",
             prompt,
         ]
 
@@ -182,7 +187,9 @@ class TestCaseValidator:
                     found_any = True
                     break
             if not found_any:
-                failures.append(f"Output missing any of: {expect['output_contains_any']}")
+                failures.append(
+                    f"Output missing any of: {expect['output_contains_any']}"
+                )
 
         if expect.get("no_errors"):
             error_patterns = [r"error:", r"exception:", r"traceback", r"failed:"]
@@ -193,7 +200,12 @@ class TestCaseValidator:
                         break
 
         if expect.get("no_crashes"):
-            crash_patterns = [r"segmentation fault", r"core dumped", r"fatal error", r"panic:"]
+            crash_patterns = [
+                r"segmentation fault",
+                r"core dumped",
+                r"fatal error",
+                r"panic:",
+            ]
             for pattern in crash_patterns:
                 if re.search(pattern, combined_output, re.IGNORECASE):
                     failures.append(f"Found crash indicator: {pattern}")
@@ -268,7 +280,9 @@ class E2ETestRunner:
 
     def run_suite(self, suite_name: str, suite: Dict[str, Any]) -> SuiteResult:
         """Run all tests in a suite."""
-        result = SuiteResult(suite_name=suite_name, description=suite.get("description", ""))
+        result = SuiteResult(
+            suite_name=suite_name, description=suite.get("description", "")
+        )
 
         if self.verbose:
             print(f"\nSuite: {suite_name}")
@@ -374,7 +388,9 @@ class E2ETestRunner:
                     time=str(test.duration),
                 )
                 if test.status != E2ETestStatus.PASSED:
-                    failure = ET.SubElement(testcase, "failure", message=test.status.value)
+                    failure = ET.SubElement(
+                        testcase, "failure", message=test.status.value
+                    )
                     failure.text = test.error or str(test.details)
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -408,13 +424,15 @@ class E2ETestRunner:
         <p class="passed"><strong>Passed:</strong> {total_passed}</p>
         <p class="failed"><strong>Failed:</strong> {total_failed}</p>
         <p><strong>Model:</strong> {self.model}</p>
-        <p><strong>Generated:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+        <p><strong>Generated:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
     </div>
 """
         for suite in results:
             html += f"<h2>{suite.suite_name}</h2><table><tr><th>Test</th><th>Status</th><th>Duration</th></tr>"
             for test in suite.tests:
-                status_class = "passed" if test.status == E2ETestStatus.PASSED else "failed"
+                status_class = (
+                    "passed" if test.status == E2ETestStatus.PASSED else "failed"
+                )
                 html += f'<tr><td>{test.name}</td><td class="{status_class}">{test.status.value}</td><td>{test.duration:.1f}s</td></tr>'
             html += "</table>"
 

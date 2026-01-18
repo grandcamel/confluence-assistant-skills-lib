@@ -25,43 +25,52 @@ from assistant_skills_lib.error_handler import (
     handle_errors as base_handle_errors,
 )
 
+
 class ConfluenceError(BaseAPIError):
     """Base exception for all Confluence-related errors."""
+
     pass
 
 
 class AuthenticationError(BaseAuthenticationError, ConfluenceError):
     """Raised when authentication fails (401)."""
+
     pass
 
 
 class PermissionError(BasePermissionError, ConfluenceError):
     """Raised when user lacks permission (403)."""
+
     pass
 
 
 class ValidationError(BaseValidationError, ConfluenceError):
     """Raised for invalid input or bad requests (400)."""
+
     pass
 
 
 class NotFoundError(BaseNotFoundError, ConfluenceError):
     """Raised when resource is not found (404)."""
+
     pass
 
 
 class RateLimitError(BaseRateLimitError, ConfluenceError):
     """Raised when rate limit is exceeded (429)."""
+
     pass
 
 
 class ConflictError(BaseConflictError, ConfluenceError):
     """Raised on resource conflicts (409)."""
+
     pass
 
 
 class ServerError(BaseServerError, ConfluenceError):
     """Raised for server-side errors (5xx)."""
+
     pass
 
 
@@ -113,7 +122,7 @@ def handle_confluence_error(
     elif status_code == 401:
         raise AuthenticationError(
             message="Authentication failed. Check your email and API token.",
-            **base_kwargs
+            **base_kwargs,
         )
     elif status_code == 403:
         raise PermissionError(message=f"Permission denied: {message}", **base_kwargs)
@@ -123,7 +132,11 @@ def handle_confluence_error(
         raise ConflictError(message=message, **base_kwargs)
     elif status_code == 429:
         retry_after_str = response.headers.get("Retry-After")
-        retry_after = int(retry_after_str) if retry_after_str and retry_after_str.isdigit() else None
+        retry_after = (
+            int(retry_after_str)
+            if retry_after_str and retry_after_str.isdigit()
+            else None
+        )
         raise RateLimitError(
             message=f"Rate limit exceeded. Retry after {retry_after or 'unknown'} seconds.",
             retry_after=retry_after,
@@ -155,6 +168,7 @@ def handle_errors(func: Callable) -> Callable:
     Decorator to handle errors in main functions.
     This wraps the base decorator to catch Confluence-specific errors first.
     """
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
         try:
@@ -163,7 +177,7 @@ def handle_errors(func: Callable) -> Callable:
             print_error("Confluence API Error", e)
             sys.exit(1)
         # Let the base handler catch everything else
-    
+
     return base_handle_errors(wrapper)
 
 
@@ -171,15 +185,24 @@ class ErrorContext:
     """
     Context manager for error handling with custom messages.
     """
+
     def __init__(self, operation: str, **context: Any):
         self.operation = operation
         self.context = context
 
-    def __enter__(self) -> 'ErrorContext':
+    def __enter__(self) -> "ErrorContext":
         return self
 
-    def __exit__(self, exc_type: Optional[type], exc_val: Optional[BaseAPIError], exc_tb: Any) -> Literal[False]:
-        if exc_type is not None and exc_val is not None and issubclass(exc_type, BaseAPIError):
+    def __exit__(
+        self, exc_type: Optional[type], exc_val: Optional[BaseAPIError], exc_tb: Any
+    ) -> Literal[False]:
+        if (
+            exc_type is not None
+            and exc_val is not None
+            and issubclass(exc_type, BaseAPIError)
+        ):
             context_str = ", ".join(f"{k}={v}" for k, v in self.context.items())
-            exc_val.operation = f"{self.operation} ({context_str})" if context_str else self.operation
+            exc_val.operation = (
+                f"{self.operation} ({context_str})" if context_str else self.operation
+            )
         return False

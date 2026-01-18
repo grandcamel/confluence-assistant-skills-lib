@@ -35,9 +35,13 @@ def _get_jira_client_config(
     if not url:
         raise ValidationError("JIRA URL required (--jira-url or JIRA_URL env var)")
     if not email:
-        raise ValidationError("JIRA email required (--jira-email or JIRA_EMAIL env var)")
+        raise ValidationError(
+            "JIRA email required (--jira-email or JIRA_EMAIL env var)"
+        )
     if not token:
-        raise ValidationError("JIRA token required (--jira-token or JIRA_API_TOKEN env var)")
+        raise ValidationError(
+            "JIRA token required (--jira-token or JIRA_API_TOKEN env var)"
+        )
 
     return {"url": url, "email": email, "token": token}
 
@@ -70,9 +74,9 @@ def _build_jira_macro(
 
     params_str = "\n".join(params)
 
-    return f'''<ac:structured-macro ac:name="jira" ac:schema-version="1" ac:macro-id="jira-issues">
+    return f"""<ac:structured-macro ac:name="jira" ac:schema-version="1" ac:macro-id="jira-issues">
 {params_str}
-</ac:structured-macro>'''
+</ac:structured-macro>"""
 
 
 @click.group()
@@ -145,13 +149,17 @@ def link_to_jira(
             for _key, value in properties.items():
                 if issue_key in str(value):
                     if output == "json":
-                        click.echo(format_json({
-                            "page": {"id": page_id, "title": page_title},
-                            "issue": issue_key,
-                            "linked": True,
-                            "skipped": True,
-                            "message": "Link already exists",
-                        }))
+                        click.echo(
+                            format_json(
+                                {
+                                    "page": {"id": page_id, "title": page_title},
+                                    "issue": issue_key,
+                                    "linked": True,
+                                    "skipped": True,
+                                    "message": "Link already exists",
+                                }
+                            )
+                        )
                     else:
                         print_info(f"Link to {issue_key} already exists, skipping.")
                     return
@@ -177,7 +185,7 @@ def link_to_jira(
     current_body = page_content.get("body", {}).get("storage", {}).get("value", "")
 
     # Add a comment-style link indicator (lightweight approach)
-    link_marker = f'<!-- JIRA-LINK: {issue_key} -->'
+    link_marker = f"<!-- JIRA-LINK: {issue_key} -->"
 
     if link_marker not in current_body:
         # Add the marker at the end
@@ -204,13 +212,17 @@ def link_to_jira(
         )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "issue": issue_key,
-            "issueUrl": issue_url,
-            "relationship": relationship,
-            "linked": True,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "issue": issue_key,
+                    "issueUrl": issue_url,
+                    "relationship": relationship,
+                    "linked": True,
+                }
+            )
+        )
     else:
         click.echo("\nPage linked to JIRA issue")
         click.echo(f"  Page: {page_title} ({page_id})")
@@ -262,46 +274,60 @@ def get_linked_issues(
     linked_issues: list[dict[str, Any]] = []
 
     # Find JIRA macros
-    macro_pattern = r'<ac:structured-macro[^>]*ac:name="jira"[^>]*>.*?</ac:structured-macro>'
+    macro_pattern = (
+        r'<ac:structured-macro[^>]*ac:name="jira"[^>]*>.*?</ac:structured-macro>'
+    )
     macros = re.findall(macro_pattern, body, re.DOTALL)
 
     for i, macro in enumerate(macros):
         # Extract JQL from macro
-        jql_match = re.search(r'<ac:parameter ac:name="jqlQuery">([^<]+)</ac:parameter>', macro)
+        jql_match = re.search(
+            r'<ac:parameter ac:name="jqlQuery">([^<]+)</ac:parameter>', macro
+        )
         if jql_match:
-            linked_issues.append({
-                "type": "macro",
-                "index": i,
-                "jql": jql_match.group(1),
-            })
+            linked_issues.append(
+                {
+                    "type": "macro",
+                    "index": i,
+                    "jql": jql_match.group(1),
+                }
+            )
 
     # Find issue keys in text (format: PROJECT-123)
-    issue_pattern = r'\b([A-Z][A-Z0-9]+-\d+)\b'
+    issue_pattern = r"\b([A-Z][A-Z0-9]+-\d+)\b"
     issue_keys = set(re.findall(issue_pattern, body))
 
     for key in issue_keys:
-        linked_issues.append({
-            "type": "reference",
-            "key": key,
-        })
+        linked_issues.append(
+            {
+                "type": "reference",
+                "key": key,
+            }
+        )
 
     # Find JIRA-LINK markers
-    link_pattern = r'<!-- JIRA-LINK: ([A-Z][A-Z0-9]+-\d+) -->'
+    link_pattern = r"<!-- JIRA-LINK: ([A-Z][A-Z0-9]+-\d+) -->"
     link_markers = re.findall(link_pattern, body)
 
     for key in link_markers:
         if not any(i.get("key") == key for i in linked_issues):
-            linked_issues.append({
-                "type": "link",
-                "key": key,
-            })
+            linked_issues.append(
+                {
+                    "type": "link",
+                    "key": key,
+                }
+            )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "linkedIssues": linked_issues,
-            "count": len(linked_issues),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "linkedIssues": linked_issues,
+                    "count": len(linked_issues),
+                }
+            )
+        )
     else:
         click.echo(f"\nJIRA Issues Linked to: {page_title} ({page_id})")
         click.echo(f"{'=' * 60}\n")
@@ -311,7 +337,9 @@ def get_linked_issues(
         else:
             # Group by type
             macros = [i for i in linked_issues if i["type"] == "macro"]
-            references = [i for i in linked_issues if i["type"] in ("reference", "link")]
+            references = [
+                i for i in linked_issues if i["type"] in ("reference", "link")
+            ]
 
             if macros:
                 click.echo("JIRA Macros:")
@@ -323,16 +351,20 @@ def get_linked_issues(
                 click.echo("Issue References:")
                 data = []
                 for ref in references:
-                    data.append({
-                        "key": ref.get("key", ""),
-                        "type": ref.get("type", ""),
-                    })
+                    data.append(
+                        {
+                            "key": ref.get("key", ""),
+                            "type": ref.get("type", ""),
+                        }
+                    )
 
-                click.echo(format_table(
-                    data,
-                    columns=["key", "type"],
-                    headers=["Issue Key", "Type"],
-                ))
+                click.echo(
+                    format_table(
+                        data,
+                        columns=["key", "type"],
+                        headers=["Issue Key", "Type"],
+                    )
+                )
 
     print_success(f"Found {len(linked_issues)} JIRA reference(s)")
 
@@ -413,7 +445,7 @@ def embed_jira_issues(
         # Remove existing JIRA macros
         new_body = re.sub(
             r'<ac:structured-macro[^>]*ac:name="jira"[^>]*>.*?</ac:structured-macro>',
-            '',
+            "",
             current_body,
             flags=re.DOTALL,
         )
@@ -442,13 +474,17 @@ def embed_jira_issues(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "jql": jql,
-            "issues": issue_list,
-            "mode": mode,
-            "macroAdded": True,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "jql": jql,
+                    "issues": issue_list,
+                    "mode": mode,
+                    "macroAdded": True,
+                }
+            )
+        )
     else:
         click.echo(f"\nJIRA Issues embedded in: {page_title}")
         click.echo(f"  Page ID: {page_id}")
@@ -521,7 +557,7 @@ def create_jira_from_page(
         description = xhtml_to_markdown(page_body)[:32000]  # JIRA limit
     except Exception:
         # Fallback: strip HTML tags
-        description = re.sub(r'<[^>]+>', '', page_body)[:32000]
+        description = re.sub(r"<[^>]+>", "", page_body)[:32000]
 
     # Build JIRA issue data
     issue_data: dict[str, Any] = {
@@ -556,7 +592,9 @@ def create_jira_from_page(
 
     if response.status_code not in (200, 201):
         error_msg = response.text[:500]
-        raise ValidationError(f"Failed to create JIRA issue: {response.status_code} - {error_msg}")
+        raise ValidationError(
+            f"Failed to create JIRA issue: {response.status_code} - {error_msg}"
+        )
 
     result = response.json()
     issue_key = result.get("key", "")
@@ -565,7 +603,7 @@ def create_jira_from_page(
     # Link the page to the new issue
     if issue_key:
         jira_config["url"].rstrip("/")
-        link_marker = f'<!-- JIRA-LINK: {issue_key} -->'
+        link_marker = f"<!-- JIRA-LINK: {issue_key} -->"
 
         # Add link marker to page
         page_content = client.get(
@@ -597,16 +635,20 @@ def create_jira_from_page(
             )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "issue": {
-                "key": issue_key,
-                "id": issue_id,
-                "url": f"{jira_config['url']}/browse/{issue_key}",
-                "project": project,
-                "type": issue_type,
-            },
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "issue": {
+                        "key": issue_key,
+                        "id": issue_id,
+                        "url": f"{jira_config['url']}/browse/{issue_key}",
+                        "project": project,
+                        "type": issue_type,
+                    },
+                }
+            )
+        )
     else:
         click.echo("\nJIRA Issue Created from Confluence Page")
         click.echo(f"  Page: {page_title} ({page_id})")
@@ -658,16 +700,22 @@ def sync_jira_macro(
     current_version = page.get("version", {}).get("number", 1)
 
     # Find JIRA macros
-    macro_pattern = r'(<ac:structured-macro[^>]*ac:name="jira"[^>]*>.*?</ac:structured-macro>)'
+    macro_pattern = (
+        r'(<ac:structured-macro[^>]*ac:name="jira"[^>]*>.*?</ac:structured-macro>)'
+    )
     macros = re.findall(macro_pattern, current_body, re.DOTALL)
 
     if not macros:
         if output == "json":
-            click.echo(format_json({
-                "page": {"id": page_id, "title": page_title},
-                "macrosFound": 0,
-                "updated": False,
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "page": {"id": page_id, "title": page_title},
+                        "macrosFound": 0,
+                        "updated": False,
+                    }
+                )
+            )
         else:
             print_warning("No JIRA macros found on this page.")
         return
@@ -713,13 +761,17 @@ def sync_jira_macro(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "macrosFound": len(macros),
-            "macrosUpdated": macros_updated,
-            "jqlUpdated": update_jql if update_jql else None,
-            "synced": True,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "macrosFound": len(macros),
+                    "macrosUpdated": macros_updated,
+                    "jqlUpdated": update_jql if update_jql else None,
+                    "synced": True,
+                }
+            )
+        )
     else:
         click.echo(f"\nJIRA Macros Synced: {page_title}")
         click.echo(f"  Page ID: {page_id}")

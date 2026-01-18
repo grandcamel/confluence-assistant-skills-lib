@@ -20,7 +20,9 @@ from confluence_assistant_skills import (
 
 def _get_page_info(client: Any, page_id: str) -> dict[str, Any]:
     """Get basic page info."""
-    return cast(dict[str, Any], client.get(f"/api/v2/pages/{page_id}", operation="get page"))
+    return cast(
+        dict[str, Any], client.get(f"/api/v2/pages/{page_id}", operation="get page")
+    )
 
 
 @click.group()
@@ -85,11 +87,15 @@ def get_children(
             break
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "children": children,
-            "count": len(children),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "children": children,
+                    "count": len(children),
+                }
+            )
+        )
     else:
         click.echo(f"\nChildren of: {page_title} ({page_id})")
         click.echo(f"{'=' * 60}\n")
@@ -99,17 +105,21 @@ def get_children(
         else:
             data = []
             for child in children:
-                data.append({
-                    "id": child.get("id", ""),
-                    "title": child.get("title", "")[:40],
-                    "status": child.get("status", ""),
-                })
+                data.append(
+                    {
+                        "id": child.get("id", ""),
+                        "title": child.get("title", "")[:40],
+                        "status": child.get("status", ""),
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["id", "title", "status"],
-                headers=["ID", "Title", "Status"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["id", "title", "status"],
+                    headers=["ID", "Title", "Status"],
+                )
+            )
 
     print_success(f"Found {len(children)} child page(s)")
 
@@ -140,17 +150,23 @@ def get_ancestors(
     page_title = page.get("title", "Unknown")
 
     # Get ancestors
-    ancestors = list(client.paginate(
-        f"/api/v2/pages/{page_id}/ancestors",
-        operation="get ancestors",
-    ))
+    ancestors = list(
+        client.paginate(
+            f"/api/v2/pages/{page_id}/ancestors",
+            operation="get ancestors",
+        )
+    )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "ancestors": ancestors,
-            "count": len(ancestors),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "ancestors": ancestors,
+                    "count": len(ancestors),
+                }
+            )
+        )
     else:
         click.echo(f"\nAncestors of: {page_title} ({page_id})")
         click.echo(f"{'=' * 60}\n")
@@ -165,17 +181,21 @@ def get_ancestors(
         else:
             data = []
             for i, ancestor in enumerate(ancestors):
-                data.append({
-                    "level": i + 1,
-                    "id": ancestor.get("id", ""),
-                    "title": ancestor.get("title", "")[:40],
-                })
+                data.append(
+                    {
+                        "level": i + 1,
+                        "id": ancestor.get("id", ""),
+                        "title": ancestor.get("title", "")[:40],
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["level", "id", "title"],
-                headers=["Level", "ID", "Title"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["level", "id", "title"],
+                    headers=["Level", "ID", "Title"],
+                )
+            )
 
     print_success(f"Found {len(ancestors)} ancestor(s)")
 
@@ -183,7 +203,9 @@ def get_ancestors(
 @hierarchy.command(name="descendants")
 @click.argument("page_id")
 @click.option("--max-depth", "-d", type=int, help="Maximum depth to traverse")
-@click.option("--limit", "-l", type=int, default=100, help="Maximum descendants to return")
+@click.option(
+    "--limit", "-l", type=int, default=100, help="Maximum descendants to return"
+)
 @click.option(
     "--output",
     "-o",
@@ -230,12 +252,16 @@ def get_descendants(
     collect_descendants(page_id)
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "descendants": descendants,
-            "count": len(descendants),
-            "maxDepth": max_depth,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "descendants": descendants,
+                    "count": len(descendants),
+                    "maxDepth": max_depth,
+                }
+            )
+        )
     else:
         click.echo(f"\nDescendants of: {page_title} ({page_id})")
         if max_depth:
@@ -248,17 +274,21 @@ def get_descendants(
             data = []
             for desc in descendants:
                 indent = "  " * desc.get("_depth", 0)
-                data.append({
-                    "depth": desc.get("_depth", 0),
-                    "id": desc.get("id", ""),
-                    "title": indent + desc.get("title", "")[:35],
-                })
+                data.append(
+                    {
+                        "depth": desc.get("_depth", 0),
+                        "id": desc.get("id", ""),
+                        "title": indent + desc.get("title", "")[:35],
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["depth", "id", "title"],
-                headers=["Depth", "ID", "Title"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["depth", "id", "title"],
+                    headers=["Depth", "ID", "Title"],
+                )
+            )
 
     print_success(f"Found {len(descendants)} descendant(s)")
 
@@ -316,6 +346,7 @@ def get_page_tree(
     # Calculate stats if requested
     tree_stats = None
     if stats:
+
         def count_nodes(nodes: list[dict[str, Any]]) -> tuple[int, int]:
             total = len(nodes)
             max_d = 0
@@ -406,10 +437,12 @@ def reorder_children(
     page_title = page.get("title", "Unknown")
 
     # Get current children
-    children = list(client.paginate(
-        f"/api/v2/pages/{parent_id}/children",
-        operation="get children",
-    ))
+    children = list(
+        client.paginate(
+            f"/api/v2/pages/{parent_id}/children",
+            operation="get children",
+        )
+    )
 
     if not children:
         raise ValidationError(f"No child pages found under {page_title}")
@@ -450,27 +483,37 @@ def reorder_children(
                 break
 
     if output == "json":
-        click.echo(format_json({
-            "parent": {"id": parent_id, "title": page_title},
-            "newOrder": [{"id": c["id"], "title": c["title"]} for c in reordered],
-        }))
+        click.echo(
+            format_json(
+                {
+                    "parent": {"id": parent_id, "title": page_title},
+                    "newOrder": [
+                        {"id": c["id"], "title": c["title"]} for c in reordered
+                    ],
+                }
+            )
+        )
     else:
         click.echo(f"\nNew order for children of: {page_title} ({parent_id})")
         click.echo(f"{'=' * 60}\n")
 
         data = []
         for i, child in enumerate(reordered, 1):
-            data.append({
-                "position": i,
-                "id": child.get("id", ""),
-                "title": child.get("title", "")[:40],
-            })
+            data.append(
+                {
+                    "position": i,
+                    "id": child.get("id", ""),
+                    "title": child.get("title", "")[:40],
+                }
+            )
 
-        click.echo(format_table(
-            data,
-            columns=["position", "id", "title"],
-            headers=["#", "ID", "Title"],
-        ))
+        click.echo(
+            format_table(
+                data,
+                columns=["position", "id", "title"],
+                headers=["#", "ID", "Title"],
+            )
+        )
 
         click.echo("\nNote: Use Confluence UI to apply actual reordering.")
 

@@ -60,15 +60,21 @@ def get_page_views(
         )
 
         # Extract contributor info as proxy for engagement
-        contributors = views_data.get("contributors", {}).get("publishers", {}).get("users", [])
+        contributors = (
+            views_data.get("contributors", {}).get("publishers", {}).get("users", [])
+        )
         last_updated = views_data.get("lastUpdated", {})
 
         if output == "json":
-            click.echo(format_json({
-                "page": {"id": page_id, "title": page_title},
-                "history": views_data,
-                "contributorCount": len(contributors),
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "page": {"id": page_id, "title": page_title},
+                        "history": views_data,
+                        "contributorCount": len(contributors),
+                    }
+                )
+            )
         else:
             click.echo(f"\nPage Statistics: {page_title} ({page_id})")
             click.echo(f"{'=' * 60}\n")
@@ -77,7 +83,9 @@ def get_page_views(
             click.echo(f"  Created: {views_data.get('createdDate', 'N/A')[:10]}")
             if last_updated:
                 click.echo(f"  Last Updated: {last_updated.get('when', 'N/A')[:10]}")
-                click.echo(f"  Updated By: {last_updated.get('by', {}).get('displayName', 'Unknown')}")
+                click.echo(
+                    f"  Updated By: {last_updated.get('by', {}).get('displayName', 'Unknown')}"
+                )
 
             click.echo(f"\nContributors: {len(contributors)}")
             if contributors:
@@ -89,11 +97,15 @@ def get_page_views(
     except Exception as e:
         # Analytics may not be available
         if output == "json":
-            click.echo(format_json({
-                "page": {"id": page_id, "title": page_title},
-                "error": str(e),
-                "note": "Analytics data may require Confluence Premium",
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "page": {"id": page_id, "title": page_title},
+                        "error": str(e),
+                        "note": "Analytics data may require Confluence Premium",
+                    }
+                )
+            )
         else:
             click.echo(f"\nPage: {page_title} ({page_id})")
             click.echo(f"{'=' * 60}\n")
@@ -135,11 +147,15 @@ def get_content_watchers(
     watchers = watchers_response.get("results", [])
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "watchers": watchers,
-            "count": len(watchers),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "watchers": watchers,
+                    "count": len(watchers),
+                }
+            )
+        )
     else:
         click.echo(f"\nWatchers of: {page_title} ({page_id})")
         click.echo(f"{'=' * 60}\n")
@@ -150,17 +166,23 @@ def get_content_watchers(
             data = []
             for watcher in watchers:
                 user = watcher.get("user", watcher)
-                data.append({
-                    "name": user.get("displayName", "Unknown"),
-                    "type": user.get("type", "user"),
-                    "email": user.get("email", "N/A")[:30] if user.get("email") else "N/A",
-                })
+                data.append(
+                    {
+                        "name": user.get("displayName", "Unknown"),
+                        "type": user.get("type", "user"),
+                        "email": user.get("email", "N/A")[:30]
+                        if user.get("email")
+                        else "N/A",
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["name", "type", "email"],
-                headers=["Name", "Type", "Email"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["name", "type", "email"],
+                    headers=["Name", "Type", "Email"],
+                )
+            )
 
     print_success(f"Found {len(watchers)} watcher(s)")
 
@@ -249,15 +271,19 @@ def get_popular_content(
             break
 
     if output == "json":
-        click.echo(format_json({
-            "cql": cql,
-            "space": space,
-            "label": label,
-            "contentType": content_type,
-            "sort": sort,
-            "results": results,
-            "count": len(results),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "cql": cql,
+                    "space": space,
+                    "label": label,
+                    "contentType": content_type,
+                    "sort": sort,
+                    "results": results,
+                    "count": len(results),
+                }
+            )
+        )
     else:
         click.echo("\nPopular Content")
         if space:
@@ -273,21 +299,25 @@ def get_popular_content(
             data = []
             for r in results:
                 content = r.get("content", r)
-                data.append({
-                    "id": content.get("id", ""),
-                    "title": content.get("title", "")[:35],
-                    "type": content.get("type", ""),
-                    "space": content.get("space", {}).get("key", ""),
-                    "modified": content.get("lastModified", {}).get("when", "")[:10]
-                    if isinstance(content.get("lastModified"), dict)
-                    else str(content.get("lastModified", ""))[:10],
-                })
+                data.append(
+                    {
+                        "id": content.get("id", ""),
+                        "title": content.get("title", "")[:35],
+                        "type": content.get("type", ""),
+                        "space": content.get("space", {}).get("key", ""),
+                        "modified": content.get("lastModified", {}).get("when", "")[:10]
+                        if isinstance(content.get("lastModified"), dict)
+                        else str(content.get("lastModified", ""))[:10],
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["id", "title", "type", "space", "modified"],
-                headers=["ID", "Title", "Type", "Space", "Modified"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["id", "title", "type", "space", "modified"],
+                    headers=["ID", "Title", "Type", "Space", "Modified"],
+                )
+            )
 
     print_success(f"Found {len(results)} content item(s)")
 
@@ -333,11 +363,13 @@ def get_space_analytics(
     blog_cql = f'space = "{space_key}" AND type = blogpost{date_filter}'
 
     # Count pages
-    list(client.paginate(
-        "/rest/api/search",
-        params={"cql": page_cql, "limit": 1},
-        operation="count pages",
-    ))
+    list(
+        client.paginate(
+            "/rest/api/search",
+            params={"cql": page_cql, "limit": 1},
+            operation="count pages",
+        )
+    )
 
     # We need to get the total from the search response differently
     # Let's collect samples to estimate

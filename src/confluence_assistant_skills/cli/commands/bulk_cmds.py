@@ -51,6 +51,7 @@ def bulk() -> None:
 # Bulk Label Operations
 # ============================================================================
 
+
 @bulk.group()
 def label() -> None:
     """Bulk label operations."""
@@ -62,8 +63,12 @@ def label() -> None:
 @click.option("--labels", "-l", required=True, help="Comma-separated labels to add")
 @click.option("--dry-run", is_flag=True, help="Preview changes without making them")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
-@click.option("--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)")
-@click.option("--batch-size", type=int, default=50, help="Batch size for processing (default: 50)")
+@click.option(
+    "--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)"
+)
+@click.option(
+    "--batch-size", type=int, default=50, help="Batch size for processing (default: 50)"
+)
 @click.option(
     "--output",
     "-o",
@@ -95,22 +100,32 @@ def bulk_label_add(
 
     if not pages:
         if output == "json":
-            click.echo(format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"}))
+            click.echo(
+                format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"})
+            )
         else:
             print_warning(f"No pages found for CQL: {cql}")
         return
 
     if dry_run:
         if output == "json":
-            click.echo(format_json({
-                "dryRun": True,
-                "cql": cql,
-                "labels": label_list,
-                "pagesFound": len(pages),
-                "pages": [{"id": p.get("id"), "title": p.get("title")} for p in pages],
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "dryRun": True,
+                        "cql": cql,
+                        "labels": label_list,
+                        "pagesFound": len(pages),
+                        "pages": [
+                            {"id": p.get("id"), "title": p.get("title")} for p in pages
+                        ],
+                    }
+                )
+            )
         else:
-            click.echo(f"\n[DRY RUN] Would add labels {label_list} to {len(pages)} page(s):\n")
+            click.echo(
+                f"\n[DRY RUN] Would add labels {label_list} to {len(pages)} page(s):\n"
+            )
             for p in pages[:10]:
                 click.echo(f"  - {p.get('title', 'Untitled')} ({p.get('id')})")
             if len(pages) > 10:
@@ -145,17 +160,23 @@ def bulk_label_add(
 
         except Exception as e:
             fail_count += 1
-            failures.append({"page_id": page_id, "title": page.get("title"), "error": str(e)})
+            failures.append(
+                {"page_id": page_id, "title": page.get("title"), "error": str(e)}
+            )
 
     if output == "json":
-        click.echo(format_json({
-            "cql": cql,
-            "labels": label_list,
-            "totalPages": len(pages),
-            "success": success_count,
-            "failed": fail_count,
-            "failures": failures,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "cql": cql,
+                    "labels": label_list,
+                    "totalPages": len(pages),
+                    "success": success_count,
+                    "failed": fail_count,
+                    "failures": failures,
+                }
+            )
+        )
     else:
         click.echo("\nBulk Label Add Complete")
         click.echo(f"  Labels: {', '.join(label_list)}")
@@ -177,7 +198,9 @@ def bulk_label_add(
 @click.option("--labels", "-l", required=True, help="Comma-separated labels to remove")
 @click.option("--dry-run", is_flag=True, help="Preview changes without making them")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
-@click.option("--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)")
+@click.option(
+    "--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)"
+)
 @click.option(
     "--output",
     "-o",
@@ -208,22 +231,32 @@ def bulk_label_remove(
 
     if not pages:
         if output == "json":
-            click.echo(format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"}))
+            click.echo(
+                format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"})
+            )
         else:
             print_warning(f"No pages found for CQL: {cql}")
         return
 
     if dry_run:
         if output == "json":
-            click.echo(format_json({
-                "dryRun": True,
-                "cql": cql,
-                "labels": label_list,
-                "pagesFound": len(pages),
-                "pages": [{"id": p.get("id"), "title": p.get("title")} for p in pages],
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "dryRun": True,
+                        "cql": cql,
+                        "labels": label_list,
+                        "pagesFound": len(pages),
+                        "pages": [
+                            {"id": p.get("id"), "title": p.get("title")} for p in pages
+                        ],
+                    }
+                )
+            )
         else:
-            click.echo(f"\n[DRY RUN] Would remove labels {label_list} from {len(pages)} page(s):\n")
+            click.echo(
+                f"\n[DRY RUN] Would remove labels {label_list} from {len(pages)} page(s):\n"
+            )
             for p in pages[:10]:
                 click.echo(f"  - {p.get('title', 'Untitled')} ({p.get('id')})")
             if len(pages) > 10:
@@ -258,17 +291,23 @@ def bulk_label_remove(
 
         except Exception as e:
             fail_count += 1
-            failures.append({"page_id": page_id, "title": page.get("title"), "error": str(e)})
+            failures.append(
+                {"page_id": page_id, "title": page.get("title"), "error": str(e)}
+            )
 
     if output == "json":
-        click.echo(format_json({
-            "cql": cql,
-            "labels": label_list,
-            "totalPages": len(pages),
-            "success": success_count,
-            "failed": fail_count,
-            "failures": failures,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "cql": cql,
+                    "labels": label_list,
+                    "totalPages": len(pages),
+                    "success": success_count,
+                    "failed": fail_count,
+                    "failures": failures,
+                }
+            )
+        )
     else:
         click.echo("\nBulk Label Remove Complete")
         click.echo(f"  Labels: {', '.join(label_list)}")
@@ -282,13 +321,16 @@ def bulk_label_remove(
 # Bulk Move Operations
 # ============================================================================
 
+
 @bulk.command(name="move")
 @click.option("--cql", required=True, help="CQL query to select pages")
 @click.option("--target-space", help="Target space key")
 @click.option("--target-parent", help="Target parent page ID")
 @click.option("--dry-run", is_flag=True, help="Preview changes without making them")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
-@click.option("--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)")
+@click.option(
+    "--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)"
+)
 @click.option(
     "--output",
     "-o",
@@ -332,23 +374,35 @@ def bulk_move(
 
     if not pages:
         if output == "json":
-            click.echo(format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"}))
+            click.echo(
+                format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"})
+            )
         else:
             print_warning(f"No pages found for CQL: {cql}")
         return
 
     if dry_run:
         if output == "json":
-            click.echo(format_json({
-                "dryRun": True,
-                "cql": cql,
-                "targetSpace": target_space,
-                "targetParent": target_parent,
-                "pagesFound": len(pages),
-                "pages": [{"id": p.get("id"), "title": p.get("title")} for p in pages],
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "dryRun": True,
+                        "cql": cql,
+                        "targetSpace": target_space,
+                        "targetParent": target_parent,
+                        "pagesFound": len(pages),
+                        "pages": [
+                            {"id": p.get("id"), "title": p.get("title")} for p in pages
+                        ],
+                    }
+                )
+            )
         else:
-            dest = f"space {target_space}" if target_space else f"under page {target_parent}"
+            dest = (
+                f"space {target_space}"
+                if target_space
+                else f"under page {target_parent}"
+            )
             click.echo(f"\n[DRY RUN] Would move {len(pages)} page(s) to {dest}:\n")
             for p in pages[:10]:
                 click.echo(f"  - {p.get('title', 'Untitled')} ({p.get('id')})")
@@ -357,7 +411,9 @@ def bulk_move(
         return
 
     if not yes:
-        dest = f"space {target_space}" if target_space else f"under page {target_parent}"
+        dest = (
+            f"space {target_space}" if target_space else f"under page {target_parent}"
+        )
         click.echo(f"\nAbout to move {len(pages)} page(s) to {dest}")
         print_warning("This operation modifies content hierarchy!")
         if not click.confirm("Continue?", default=False):
@@ -401,18 +457,24 @@ def bulk_move(
 
         except Exception as e:
             fail_count += 1
-            failures.append({"page_id": page_id, "title": page.get("title"), "error": str(e)})
+            failures.append(
+                {"page_id": page_id, "title": page.get("title"), "error": str(e)}
+            )
 
     if output == "json":
-        click.echo(format_json({
-            "cql": cql,
-            "targetSpace": target_space,
-            "targetParent": target_parent,
-            "totalPages": len(pages),
-            "success": success_count,
-            "failed": fail_count,
-            "failures": failures,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "cql": cql,
+                    "targetSpace": target_space,
+                    "targetParent": target_parent,
+                    "totalPages": len(pages),
+                    "success": success_count,
+                    "failed": fail_count,
+                    "failures": failures,
+                }
+            )
+        )
     else:
         click.echo("\nBulk Move Complete")
         click.echo(f"  Success: {success_count}")
@@ -432,11 +494,14 @@ def bulk_move(
 # Bulk Delete Operations
 # ============================================================================
 
+
 @bulk.command(name="delete")
 @click.option("--cql", required=True, help="CQL query to select pages")
 @click.option("--dry-run", is_flag=True, help="Preview changes without making them")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
-@click.option("--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)")
+@click.option(
+    "--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)"
+)
 @click.option(
     "--output",
     "-o",
@@ -462,26 +527,36 @@ def bulk_delete(
 
     if not pages:
         if output == "json":
-            click.echo(format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"}))
+            click.echo(
+                format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"})
+            )
         else:
             print_warning(f"No pages found for CQL: {cql}")
         return
 
     if dry_run:
         if output == "json":
-            click.echo(format_json({
-                "dryRun": True,
-                "cql": cql,
-                "pagesFound": len(pages),
-                "pages": [{"id": p.get("id"), "title": p.get("title")} for p in pages],
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "dryRun": True,
+                        "cql": cql,
+                        "pagesFound": len(pages),
+                        "pages": [
+                            {"id": p.get("id"), "title": p.get("title")} for p in pages
+                        ],
+                    }
+                )
+            )
         else:
             click.echo(f"\n[DRY RUN] Would DELETE {len(pages)} page(s):\n")
             for p in pages[:20]:
                 click.echo(f"  - {p.get('title', 'Untitled')} ({p.get('id')})")
             if len(pages) > 20:
                 click.echo(f"  ... and {len(pages) - 20} more")
-            print_warning("\nThis operation is DESTRUCTIVE and cannot be easily undone!")
+            print_warning(
+                "\nThis operation is DESTRUCTIVE and cannot be easily undone!"
+            )
         return
 
     if not yes:
@@ -500,7 +575,9 @@ def bulk_delete(
             return
 
         # Double confirmation for safety
-        if len(pages) > 10 and not click.confirm(f"Confirm deletion of {len(pages)} pages?", default=False):
+        if len(pages) > 10 and not click.confirm(
+            f"Confirm deletion of {len(pages)} pages?", default=False
+        ):
             click.echo("Cancelled.")
             return
 
@@ -528,16 +605,22 @@ def bulk_delete(
 
         except Exception as e:
             fail_count += 1
-            failures.append({"page_id": page_id, "title": page.get("title"), "error": str(e)})
+            failures.append(
+                {"page_id": page_id, "title": page.get("title"), "error": str(e)}
+            )
 
     if output == "json":
-        click.echo(format_json({
-            "cql": cql,
-            "totalPages": len(pages),
-            "deleted": success_count,
-            "failed": fail_count,
-            "failures": failures,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "cql": cql,
+                    "totalPages": len(pages),
+                    "deleted": success_count,
+                    "failed": fail_count,
+                    "failures": failures,
+                }
+            )
+        )
     else:
         click.echo("\nBulk Delete Complete")
         click.echo(f"  Deleted: {success_count}")
@@ -557,6 +640,7 @@ def bulk_delete(
 # Bulk Permission Operations
 # ============================================================================
 
+
 @bulk.command(name="permission")
 @click.option("--cql", required=True, help="CQL query to select pages")
 @click.option("--add-group", help="Group to add view permission")
@@ -565,7 +649,9 @@ def bulk_delete(
 @click.option("--remove-user", help="User account ID to remove from permissions")
 @click.option("--dry-run", is_flag=True, help="Preview changes without making them")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
-@click.option("--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)")
+@click.option(
+    "--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)"
+)
 @click.option(
     "--output",
     "-o",
@@ -600,7 +686,9 @@ def bulk_permission(
 
     if not pages:
         if output == "json":
-            click.echo(format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"}))
+            click.echo(
+                format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"})
+            )
         else:
             print_warning(f"No pages found for CQL: {cql}")
         return
@@ -619,18 +707,24 @@ def bulk_permission(
 
     if dry_run:
         if output == "json":
-            click.echo(format_json({
-                "dryRun": True,
-                "cql": cql,
-                "operations": {
-                    "addGroup": add_group,
-                    "removeGroup": remove_group,
-                    "addUser": add_user,
-                    "removeUser": remove_user,
-                },
-                "pagesFound": len(pages),
-                "pages": [{"id": p.get("id"), "title": p.get("title")} for p in pages],
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "dryRun": True,
+                        "cql": cql,
+                        "operations": {
+                            "addGroup": add_group,
+                            "removeGroup": remove_group,
+                            "addUser": add_user,
+                            "removeUser": remove_user,
+                        },
+                        "pagesFound": len(pages),
+                        "pages": [
+                            {"id": p.get("id"), "title": p.get("title")} for p in pages
+                        ],
+                    }
+                )
+            )
         else:
             click.echo(f"\n[DRY RUN] Would {op_desc} on {len(pages)} page(s):\n")
             for p in pages[:10]:
@@ -696,22 +790,28 @@ def bulk_permission(
 
         except Exception as e:
             fail_count += 1
-            failures.append({"page_id": page_id, "title": page.get("title"), "error": str(e)})
+            failures.append(
+                {"page_id": page_id, "title": page.get("title"), "error": str(e)}
+            )
 
     if output == "json":
-        click.echo(format_json({
-            "cql": cql,
-            "operations": {
-                "addGroup": add_group,
-                "removeGroup": remove_group,
-                "addUser": add_user,
-                "removeUser": remove_user,
-            },
-            "totalPages": len(pages),
-            "success": success_count,
-            "failed": fail_count,
-            "failures": failures,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "cql": cql,
+                    "operations": {
+                        "addGroup": add_group,
+                        "removeGroup": remove_group,
+                        "addUser": add_user,
+                        "removeUser": remove_user,
+                    },
+                    "totalPages": len(pages),
+                    "success": success_count,
+                    "failed": fail_count,
+                    "failures": failures,
+                }
+            )
+        )
     else:
         click.echo("\nBulk Permission Change Complete")
         click.echo(f"  Operations: {op_desc}")
@@ -732,13 +832,16 @@ def bulk_permission(
 # Bulk Update Operations
 # ============================================================================
 
+
 @bulk.command(name="update")
 @click.option("--cql", required=True, help="CQL query to select pages")
 @click.option("--title-prefix", help="Prefix to add to titles")
 @click.option("--title-suffix", help="Suffix to add to titles")
 @click.option("--dry-run", is_flag=True, help="Preview changes without making them")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
-@click.option("--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)")
+@click.option(
+    "--max-pages", type=int, default=100, help="Maximum pages to process (default: 100)"
+)
 @click.option(
     "--output",
     "-o",
@@ -760,7 +863,9 @@ def bulk_update(
     max_pages = validate_limit(max_pages, max_value=500)
 
     if not title_prefix and not title_suffix:
-        raise ValidationError("At least one of --title-prefix or --title-suffix is required")
+        raise ValidationError(
+            "At least one of --title-prefix or --title-suffix is required"
+        )
 
     client = get_confluence_client()
 
@@ -769,7 +874,9 @@ def bulk_update(
 
     if not pages:
         if output == "json":
-            click.echo(format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"}))
+            click.echo(
+                format_json({"cql": cql, "pagesFound": 0, "error": "No pages found"})
+            )
         else:
             print_warning(f"No pages found for CQL: {cql}")
         return
@@ -792,20 +899,26 @@ def bulk_update(
                     new_title = title_prefix + new_title
                 if title_suffix:
                     new_title = new_title + title_suffix
-                preview.append({
-                    "id": p.get("id"),
-                    "oldTitle": old_title,
-                    "newTitle": new_title,
-                })
+                preview.append(
+                    {
+                        "id": p.get("id"),
+                        "oldTitle": old_title,
+                        "newTitle": new_title,
+                    }
+                )
 
-            click.echo(format_json({
-                "dryRun": True,
-                "cql": cql,
-                "titlePrefix": title_prefix,
-                "titleSuffix": title_suffix,
-                "pagesFound": len(pages),
-                "preview": preview,
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "dryRun": True,
+                        "cql": cql,
+                        "titlePrefix": title_prefix,
+                        "titleSuffix": title_suffix,
+                        "pagesFound": len(pages),
+                        "preview": preview,
+                    }
+                )
+            )
         else:
             click.echo(f"\n[DRY RUN] Would {op_desc} on {len(pages)} page(s):\n")
             for p in pages[:10]:
@@ -864,18 +977,24 @@ def bulk_update(
 
         except Exception as e:
             fail_count += 1
-            failures.append({"page_id": page_id, "title": page.get("title"), "error": str(e)})
+            failures.append(
+                {"page_id": page_id, "title": page.get("title"), "error": str(e)}
+            )
 
     if output == "json":
-        click.echo(format_json({
-            "cql": cql,
-            "titlePrefix": title_prefix,
-            "titleSuffix": title_suffix,
-            "totalPages": len(pages),
-            "success": success_count,
-            "failed": fail_count,
-            "failures": failures,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "cql": cql,
+                    "titlePrefix": title_prefix,
+                    "titleSuffix": title_suffix,
+                    "totalPages": len(pages),
+                    "success": success_count,
+                    "failed": fail_count,
+                    "failures": failures,
+                }
+            )
+        )
     else:
         click.echo("\nBulk Update Complete")
         click.echo(f"  Operation: {op_desc}")

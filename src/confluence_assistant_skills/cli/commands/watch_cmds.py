@@ -20,7 +20,10 @@ from confluence_assistant_skills import (
 
 def _get_current_user(client: Any) -> dict[str, Any]:
     """Get current user info."""
-    return cast(dict[str, Any], client.get("/rest/api/user/current", operation="get current user"))
+    return cast(
+        dict[str, Any],
+        client.get("/rest/api/user/current", operation="get current user"),
+    )
 
 
 @click.group()
@@ -66,11 +69,15 @@ def watch_page(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "watching": True,
-            "user": user.get("displayName", "Current user"),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "watching": True,
+                    "user": user.get("displayName", "Current user"),
+                }
+            )
+        )
     else:
         click.echo(f"\nNow watching: {page_title}")
         click.echo(f"  Page ID: {page_id}")
@@ -112,10 +119,14 @@ def unwatch_page(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "watching": False,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "watching": False,
+                }
+            )
+        )
     else:
         click.echo(f"\nStopped watching: {page_title}")
         click.echo(f"  Page ID: {page_id}")
@@ -126,7 +137,9 @@ def unwatch_page(
 
 @watch.command(name="space")
 @click.argument("space_key")
-@click.option("--unwatch", "-u", is_flag=True, help="Stop watching the space instead of starting")
+@click.option(
+    "--unwatch", "-u", is_flag=True, help="Stop watching the space instead of starting"
+)
 @click.option(
     "--output",
     "-o",
@@ -170,15 +183,21 @@ def watch_space(
         watching = True
 
     if output == "json":
-        click.echo(format_json({
-            "space": {"key": space_key, "name": space_name},
-            "watching": watching,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "space": {"key": space_key, "name": space_name},
+                    "watching": watching,
+                }
+            )
+        )
     else:
         click.echo(f"\n{action}: {space_name}")
         click.echo(f"  Space Key: {space_key}")
         if watching:
-            click.echo("  You will receive notifications for all content in this space.")
+            click.echo(
+                "  You will receive notifications for all content in this space."
+            )
         else:
             click.echo("  You will no longer receive space-wide notifications.")
 
@@ -223,10 +242,14 @@ def am_i_watching(
         is_watching = False
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "watching": is_watching,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "watching": is_watching,
+                }
+            )
+        )
     else:
         click.echo(f"\nWatch Status: {page_title}")
         click.echo(f"  Page ID: {page_id}")
@@ -280,30 +303,40 @@ def get_watchers(
         watchers = watchers_response.get("results", [])
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "watchers": watchers,
-            "count": len(watchers),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "watchers": watchers,
+                    "count": len(watchers),
+                }
+            )
+        )
     else:
         click.echo(f"\nWatchers of: {page_title} ({page_id})")
         click.echo(f"{'=' * 60}\n")
 
         if not watchers:
-            click.echo("No watchers found (or you may not have permission to view watchers).")
+            click.echo(
+                "No watchers found (or you may not have permission to view watchers)."
+            )
         else:
             data = []
             for watcher_item in watchers:
                 watcher = watcher_item.get("user", watcher_item)
-                data.append({
-                    "name": watcher.get("displayName", "Unknown"),
-                    "type": watcher.get("type", "user"),
-                })
+                data.append(
+                    {
+                        "name": watcher.get("displayName", "Unknown"),
+                        "type": watcher.get("type", "user"),
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["name", "type"],
-                headers=["Name", "Type"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["name", "type"],
+                    headers=["Name", "Type"],
+                )
+            )
 
     print_success(f"Found {len(watchers)} watcher(s)")

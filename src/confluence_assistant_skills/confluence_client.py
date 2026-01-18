@@ -91,7 +91,15 @@ class ConfluenceClient:
             total=self.max_retries,
             backoff_factor=self.retry_backoff,
             status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["HEAD", "GET", "PUT", "DELETE", "OPTIONS", "TRACE", "POST"],
+            allowed_methods=[
+                "HEAD",
+                "GET",
+                "PUT",
+                "DELETE",
+                "OPTIONS",
+                "TRACE",
+                "POST",
+            ],
             raise_on_status=False,
         )
 
@@ -101,11 +109,13 @@ class ConfluenceClient:
 
         # Set auth and default headers
         session.auth = (self.email, self.api_token)
-        session.headers.update({
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "User-Agent": f"Confluence-Assistant-Skills-Lib/{__version__}",
-        })
+        session.headers.update(
+            {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "User-Agent": f"Confluence-Assistant-Skills-Lib/{__version__}",
+            }
+        )
 
         return session
 
@@ -262,7 +272,9 @@ class ConfluenceClient:
         Returns:
             Parsed JSON response
         """
-        return self._request_with_body("POST", endpoint, data, json_data, params, operation)
+        return self._request_with_body(
+            "POST", endpoint, data, json_data, params, operation
+        )
 
     def put(
         self,
@@ -285,7 +297,9 @@ class ConfluenceClient:
         Returns:
             Parsed JSON response
         """
-        return self._request_with_body("PUT", endpoint, data, json_data, params, operation)
+        return self._request_with_body(
+            "PUT", endpoint, data, json_data, params, operation
+        )
 
     def delete(
         self,
@@ -475,7 +489,9 @@ class ConfluenceClient:
 
         download_url = att_info.get("downloadLink")
         if not download_url:
-            raise ValidationError(f"No download link found for attachment {attachment_id}")
+            raise ValidationError(
+                f"No download link found for attachment {attachment_id}"
+            )
 
         # Handle relative URLs
         if download_url.startswith("/"):
@@ -593,10 +609,7 @@ class ConfluenceClient:
         """
         try:
             # Try to get current user via v1 API (more reliable for auth test)
-            result = self.get(
-                "/rest/api/user/current",
-                operation="test connection"
-            )
+            result = self.get("/rest/api/user/current", operation="test connection")
             return {
                 "success": True,
                 "user": result.get("displayName", result.get("username", "Unknown")),
@@ -612,10 +625,7 @@ class ConfluenceClient:
 
 # Convenience function for quick client creation
 def create_client(
-    base_url: str,
-    email: str,
-    api_token: str,
-    **kwargs
+    base_url: str, email: str, api_token: str, **kwargs
 ) -> ConfluenceClient:
     """
     Create a Confluence client with the given credentials.
@@ -630,8 +640,5 @@ def create_client(
         Configured ConfluenceClient instance
     """
     return ConfluenceClient(
-        base_url=base_url,
-        email=email,
-        api_token=api_token,
-        **kwargs
+        base_url=base_url, email=email, api_token=api_token, **kwargs
     )

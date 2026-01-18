@@ -99,11 +99,15 @@ def list_attachments(
             break
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "attachments": attachments,
-            "count": len(attachments),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "attachments": attachments,
+                    "count": len(attachments),
+                }
+            )
+        )
     else:
         click.echo(f"\nAttachments on: {page_title} ({page_id})")
         click.echo(f"{'=' * 60}\n")
@@ -114,13 +118,15 @@ def list_attachments(
             data = []
             for a in attachments:
                 formatted = _format_attachment(a)
-                data.append({
-                    "id": formatted["id"],
-                    "title": formatted["title"][:30],
-                    "type": formatted["mediaType"][:20],
-                    "size": formatted["fileSize"],
-                    "ver": formatted["version"],
-                })
+                data.append(
+                    {
+                        "id": formatted["id"],
+                        "title": formatted["title"][:30],
+                        "type": formatted["mediaType"][:20],
+                        "size": formatted["fileSize"],
+                        "ver": formatted["version"],
+                    }
+                )
 
             click.echo(
                 format_table(
@@ -197,7 +203,9 @@ def upload_attachment(
 
 @attachment.command(name="download")
 @click.argument("attachment_id")
-@click.option("--output", "-o", "output_path", default=".", help="Output file or directory")
+@click.option(
+    "--output", "-o", "output_path", default=".", help="Output file or directory"
+)
 @click.option(
     "--all",
     "-a",
@@ -226,10 +234,12 @@ def download_attachment(
 
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        attachments = list(client.paginate(
-            f"/api/v2/pages/{page_id}/attachments",
-            operation="list attachments",
-        ))
+        attachments = list(
+            client.paginate(
+                f"/api/v2/pages/{page_id}/attachments",
+                operation="list attachments",
+            )
+        )
 
         if not attachments:
             click.echo("No attachments found on page.")
@@ -240,7 +250,9 @@ def download_attachment(
         for att in attachments:
             att_id = att.get("id")
             title = att.get("title", "attachment")
-            download_url = att.get("downloadLink", att.get("_links", {}).get("download"))
+            download_url = att.get(
+                "downloadLink", att.get("_links", {}).get("download")
+            )
 
             if download_url:
                 content = client.download_attachment(att_id)

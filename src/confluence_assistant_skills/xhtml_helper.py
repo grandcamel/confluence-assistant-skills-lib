@@ -56,68 +56,72 @@ def xhtml_to_markdown(xhtml: str) -> str:
     text = html.unescape(xhtml)
 
     # Remove XML declaration and namespace prefixes
-    text = re.sub(r'<\?xml[^>]*\?>', '', text)
-    text = re.sub(r'</?ac:', '</', text)
-    text = re.sub(r'</?ri:', '</', text)
+    text = re.sub(r"<\?xml[^>]*\?>", "", text)
+    text = re.sub(r"</?ac:", "</", text)
+    text = re.sub(r"</?ri:", "</", text)
 
     # Process macros before general HTML
     text = _process_macros(text)
 
     # Headings (h1-h6)
     for level in range(1, 7):
-        pattern = rf'<h{level}[^>]*>(.*?)</h{level}>'
-        text = re.sub(pattern, lambda m: f"\n{'#' * level} {_clean_text(m.group(1))}\n", text, flags=re.DOTALL)
+        pattern = rf"<h{level}[^>]*>(.*?)</h{level}>"
+        text = re.sub(
+            pattern,
+            lambda m: f"\n{'#' * level} {_clean_text(m.group(1))}\n",
+            text,
+            flags=re.DOTALL,
+        )
 
     # Paragraphs
-    text = re.sub(r'<p[^>]*>(.*?)</p>', lambda m: f"\n{_clean_text(m.group(1))}\n", text, flags=re.DOTALL)
+    text = re.sub(
+        r"<p[^>]*>(.*?)</p>",
+        lambda m: f"\n{_clean_text(m.group(1))}\n",
+        text,
+        flags=re.DOTALL,
+    )
 
     # Line breaks
-    text = re.sub(r'<br\s*/?\s*>', '  \n', text)
+    text = re.sub(r"<br\s*/?\s*>", "  \n", text)
 
     # Bold
-    text = re.sub(r'<strong[^>]*>(.*?)</strong>', r'**\1**', text, flags=re.DOTALL)
-    text = re.sub(r'<b[^>]*>(.*?)</b>', r'**\1**', text, flags=re.DOTALL)
+    text = re.sub(r"<strong[^>]*>(.*?)</strong>", r"**\1**", text, flags=re.DOTALL)
+    text = re.sub(r"<b[^>]*>(.*?)</b>", r"**\1**", text, flags=re.DOTALL)
 
     # Italic
-    text = re.sub(r'<em[^>]*>(.*?)</em>', r'*\1*', text, flags=re.DOTALL)
-    text = re.sub(r'<i[^>]*>(.*?)</i>', r'*\1*', text, flags=re.DOTALL)
+    text = re.sub(r"<em[^>]*>(.*?)</em>", r"*\1*", text, flags=re.DOTALL)
+    text = re.sub(r"<i[^>]*>(.*?)</i>", r"*\1*", text, flags=re.DOTALL)
 
     # Underline (Markdown doesn't support, use HTML or emphasis)
-    text = re.sub(r'<u[^>]*>(.*?)</u>', r'_\1_', text, flags=re.DOTALL)
+    text = re.sub(r"<u[^>]*>(.*?)</u>", r"_\1_", text, flags=re.DOTALL)
 
     # Strikethrough
-    text = re.sub(r'<s[^>]*>(.*?)</s>', r'~~\1~~', text, flags=re.DOTALL)
-    text = re.sub(r'<del[^>]*>(.*?)</del>', r'~~\1~~', text, flags=re.DOTALL)
+    text = re.sub(r"<s[^>]*>(.*?)</s>", r"~~\1~~", text, flags=re.DOTALL)
+    text = re.sub(r"<del[^>]*>(.*?)</del>", r"~~\1~~", text, flags=re.DOTALL)
 
     # Inline code
-    text = re.sub(r'<code[^>]*>(.*?)</code>', r'`\1`', text, flags=re.DOTALL)
+    text = re.sub(r"<code[^>]*>(.*?)</code>", r"`\1`", text, flags=re.DOTALL)
 
     # Links
     text = re.sub(
         r'<a[^>]*href="([^"]*)"[^>]*>(.*?)</a>',
-        lambda m: f'[{_clean_text(m.group(2))}]({m.group(1)})',
+        lambda m: f"[{_clean_text(m.group(2))}]({m.group(1)})",
         text,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     # Images
     text = re.sub(
-        r'<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*/?>',
-        r'![\2](\1)',
-        text
+        r'<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*/?>', r"![\2](\1)", text
     )
-    text = re.sub(
-        r'<img[^>]*src="([^"]*)"[^>]*/?>',
-        r'![](\1)',
-        text
-    )
+    text = re.sub(r'<img[^>]*src="([^"]*)"[^>]*/?>', r"![](\1)", text)
 
     # Preformatted/code blocks
     text = re.sub(
-        r'<pre[^>]*>(.*?)</pre>',
+        r"<pre[^>]*>(.*?)</pre>",
         lambda m: f"\n```\n{_clean_text(m.group(1))}\n```\n",
         text,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     # Process lists
@@ -128,20 +132,22 @@ def xhtml_to_markdown(xhtml: str) -> str:
 
     # Blockquotes
     text = re.sub(
-        r'<blockquote[^>]*>(.*?)</blockquote>',
-        lambda m: '\n' + '\n'.join(f'> {line}' for line in _clean_text(m.group(1)).split('\n')) + '\n',
+        r"<blockquote[^>]*>(.*?)</blockquote>",
+        lambda m: "\n"
+        + "\n".join(f"> {line}" for line in _clean_text(m.group(1)).split("\n"))
+        + "\n",
         text,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     # Horizontal rules
-    text = re.sub(r'<hr\s*/?\s*>', '\n---\n', text)
+    text = re.sub(r"<hr\s*/?\s*>", "\n---\n", text)
 
     # Remove remaining HTML tags
-    text = re.sub(r'<[^>]+>', '', text)
+    text = re.sub(r"<[^>]+>", "", text)
 
     # Clean up whitespace
-    text = re.sub(r'\n{3,}', '\n\n', text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
     text = text.strip()
 
     return text
@@ -163,6 +169,7 @@ def _process_macros(text: str) -> str:
     - anchor: Page anchors
     - expand: Expandable sections
     """
+
     # Code macro
     def code_macro(match):
         params = match.group(1) or ""
@@ -179,43 +186,47 @@ def _process_macros(text: str) -> str:
         r'<structured-macro[^>]*name="code"([^>]*)>.*?<plain-text-body>(.*?)</plain-text-body>.*?</structured-macro>',
         code_macro,
         text,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     # Info/Warning/Note panels
-    panel_types = ['info', 'warning', 'note', 'tip', 'panel']
+    panel_types = ["info", "warning", "note", "tip", "panel"]
     for panel_type in panel_types:
         pattern = rf'<structured-macro[^>]*name="{panel_type}"[^>]*>.*?<rich-text-body>(.*?)</rich-text-body>.*?</structured-macro>'
         text = re.sub(
             pattern,
             lambda m: f"\n> **{panel_type.title()}:** {_clean_text(m.group(1))}\n",
             text,
-            flags=re.DOTALL
+            flags=re.DOTALL,
         )
 
     # Status macro (colored labels)
     text = re.sub(
         r'<structured-macro[^>]*name="status"[^>]*>.*?<parameter name="title">([^<]*)</parameter>.*?</structured-macro>',
-        r'`\1`',
+        r"`\1`",
         text,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     # TOC macro - just note it
     text = re.sub(
         r'<structured-macro[^>]*name="toc"[^>]*>.*?</structured-macro>',
-        '\n[Table of Contents]\n',
+        "\n[Table of Contents]\n",
         text,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     # Expand macro
     def expand_macro(match):
         title = "Details"
-        title_match = re.search(r'<parameter name="title">([^<]*)</parameter>', match.group(0))
+        title_match = re.search(
+            r'<parameter name="title">([^<]*)</parameter>', match.group(0)
+        )
         if title_match:
             title = title_match.group(1)
-        body_match = re.search(r'<rich-text-body>(.*?)</rich-text-body>', match.group(0), re.DOTALL)
+        body_match = re.search(
+            r"<rich-text-body>(.*?)</rich-text-body>", match.group(0), re.DOTALL
+        )
         body = _clean_text(body_match.group(1)) if body_match else ""
         return f"\n<details>\n<summary>{title}</summary>\n\n{body}\n</details>\n"
 
@@ -223,7 +234,7 @@ def _process_macros(text: str) -> str:
         r'<structured-macro[^>]*name="expand"[^>]*>.*?</structured-macro>',
         expand_macro,
         text,
-        flags=re.DOTALL
+        flags=re.DOTALL,
     )
 
     return text
@@ -231,49 +242,55 @@ def _process_macros(text: str) -> str:
 
 def _process_lists(text: str) -> str:
     """Process HTML lists to Markdown."""
+
     # Unordered lists
     def ul_handler(match):
-        items = re.findall(r'<li[^>]*>(.*?)</li>', match.group(1), re.DOTALL)
-        return '\n' + '\n'.join(f'- {_clean_text(item)}' for item in items) + '\n'
+        items = re.findall(r"<li[^>]*>(.*?)</li>", match.group(1), re.DOTALL)
+        return "\n" + "\n".join(f"- {_clean_text(item)}" for item in items) + "\n"
 
-    text = re.sub(r'<ul[^>]*>(.*?)</ul>', ul_handler, text, flags=re.DOTALL)
+    text = re.sub(r"<ul[^>]*>(.*?)</ul>", ul_handler, text, flags=re.DOTALL)
 
     # Ordered lists
     def ol_handler(match):
-        items = re.findall(r'<li[^>]*>(.*?)</li>', match.group(1), re.DOTALL)
-        return '\n' + '\n'.join(f'{i+1}. {_clean_text(item)}' for i, item in enumerate(items)) + '\n'
+        items = re.findall(r"<li[^>]*>(.*?)</li>", match.group(1), re.DOTALL)
+        return (
+            "\n"
+            + "\n".join(f"{i + 1}. {_clean_text(item)}" for i, item in enumerate(items))
+            + "\n"
+        )
 
-    text = re.sub(r'<ol[^>]*>(.*?)</ol>', ol_handler, text, flags=re.DOTALL)
+    text = re.sub(r"<ol[^>]*>(.*?)</ol>", ol_handler, text, flags=re.DOTALL)
 
     return text
 
 
 def _process_tables(text: str) -> str:
     """Process HTML tables to Markdown."""
+
     def table_handler(match):
         table_html = match.group(0)
         rows = []
 
         # Find all rows
-        row_matches = re.findall(r'<tr[^>]*>(.*?)</tr>', table_html, re.DOTALL)
+        row_matches = re.findall(r"<tr[^>]*>(.*?)</tr>", table_html, re.DOTALL)
 
         for i, row_html in enumerate(row_matches):
             # Find cells (th or td)
-            cells = re.findall(r'<t[hd][^>]*>(.*?)</t[hd]>', row_html, re.DOTALL)
+            cells = re.findall(r"<t[hd][^>]*>(.*?)</t[hd]>", row_html, re.DOTALL)
             cells = [_clean_text(c) for c in cells]
 
             if cells:
-                row = '| ' + ' | '.join(cells) + ' |'
+                row = "| " + " | ".join(cells) + " |"
                 rows.append(row)
 
                 # Add header separator after first row
                 if i == 0:
-                    separator = '| ' + ' | '.join(['---'] * len(cells)) + ' |'
+                    separator = "| " + " | ".join(["---"] * len(cells)) + " |"
                     rows.append(separator)
 
-        return '\n' + '\n'.join(rows) + '\n' if rows else ''
+        return "\n" + "\n".join(rows) + "\n" if rows else ""
 
-    text = re.sub(r'<table[^>]*>.*?</table>', table_handler, text, flags=re.DOTALL)
+    text = re.sub(r"<table[^>]*>.*?</table>", table_handler, text, flags=re.DOTALL)
 
     return text
 
@@ -300,49 +317,55 @@ def markdown_to_xhtml(markdown: str) -> str:
     # Convert blocks to XHTML
     result = []
     for block in blocks:
-        block_type = block['type']
+        block_type = block["type"]
 
-        if block_type == 'heading':
-            level = block['level']
-            text = _markdown_inline_to_xhtml(block['content'])
-            result.append(f'<h{level}>{text}</h{level}>')
+        if block_type == "heading":
+            level = block["level"]
+            text = _markdown_inline_to_xhtml(block["content"])
+            result.append(f"<h{level}>{text}</h{level}>")
 
-        elif block_type == 'horizontal_rule':
-            result.append('<hr />')
+        elif block_type == "horizontal_rule":
+            result.append("<hr />")
 
-        elif block_type == 'code_block':
+        elif block_type == "code_block":
             # Escape HTML in code content
-            code = html.escape(block['content'])
-            language = block.get('language')
+            code = html.escape(block["content"])
+            language = block.get("language")
 
             if language:
                 result.append(
                     f'<ac:structured-macro ac:name="code">'
                     f'<ac:parameter ac:name="language">{language}</ac:parameter>'
-                    f'<ac:plain-text-body><![CDATA[{block["content"]}]]></ac:plain-text-body>'
-                    f'</ac:structured-macro>'
+                    f"<ac:plain-text-body><![CDATA[{block['content']}]]></ac:plain-text-body>"
+                    f"</ac:structured-macro>"
                 )
             else:
-                result.append(f'<pre>{code}</pre>')
+                result.append(f"<pre>{code}</pre>")
 
-        elif block_type == 'blockquote':
+        elif block_type == "blockquote":
             # Join lines with space for blockquote
-            quote_content = _markdown_inline_to_xhtml(block['content'].replace('\n', ' '))
-            result.append(f'<blockquote><p>{quote_content}</p></blockquote>')
+            quote_content = _markdown_inline_to_xhtml(
+                block["content"].replace("\n", " ")
+            )
+            result.append(f"<blockquote><p>{quote_content}</p></blockquote>")
 
-        elif block_type == 'bullet_list':
-            items = [f'<li>{_markdown_inline_to_xhtml(item)}</li>' for item in block['items']]
-            result.append('<ul>' + ''.join(items) + '</ul>')
+        elif block_type == "bullet_list":
+            items = [
+                f"<li>{_markdown_inline_to_xhtml(item)}</li>" for item in block["items"]
+            ]
+            result.append("<ul>" + "".join(items) + "</ul>")
 
-        elif block_type == 'ordered_list':
-            items = [f'<li>{_markdown_inline_to_xhtml(item)}</li>' for item in block['items']]
-            result.append('<ol>' + ''.join(items) + '</ol>')
+        elif block_type == "ordered_list":
+            items = [
+                f"<li>{_markdown_inline_to_xhtml(item)}</li>" for item in block["items"]
+            ]
+            result.append("<ol>" + "".join(items) + "</ol>")
 
-        elif block_type == 'paragraph':
-            para_content = _markdown_inline_to_xhtml(block['content'])
-            result.append(f'<p>{para_content}</p>')
+        elif block_type == "paragraph":
+            para_content = _markdown_inline_to_xhtml(block["content"])
+            result.append(f"<p>{para_content}</p>")
 
-    return ''.join(result)
+    return "".join(result)
 
 
 # Alias for internal use - uses shared function from markdown_parser
@@ -359,24 +382,28 @@ def _markdown_inline_to_xhtml(text: str) -> str:
     text = html.escape(text)
 
     # Bold **text** or __text__
-    text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
-    text = re.sub(r'__(.+?)__', r'<strong>\1</strong>', text)
+    text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(r"__(.+?)__", r"<strong>\1</strong>", text)
 
     # Italic *text* or _text_
-    text = re.sub(r'\*(.+?)\*', r'<em>\1</em>', text)
-    text = re.sub(r'_(.+?)_', r'<em>\1</em>', text)
+    text = re.sub(r"\*(.+?)\*", r"<em>\1</em>", text)
+    text = re.sub(r"_(.+?)_", r"<em>\1</em>", text)
 
     # Strikethrough ~~text~~
-    text = re.sub(r'~~(.+?)~~', r'<s>\1</s>', text)
+    text = re.sub(r"~~(.+?)~~", r"<s>\1</s>", text)
 
     # Code `text`
-    text = re.sub(r'`(.+?)`', r'<code>\1</code>', text)
+    text = re.sub(r"`(.+?)`", r"<code>\1</code>", text)
 
     # Images ![alt](url)
-    text = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', r'<ac:image><ri:url ri:value="\2" /></ac:image>', text)
+    text = re.sub(
+        r"!\[([^\]]*)\]\(([^)]+)\)",
+        r'<ac:image><ri:url ri:value="\2" /></ac:image>',
+        text,
+    )
 
     # Links [text](url)
-    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', text)
+    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', text)
 
     return text
 
@@ -398,6 +425,7 @@ def xhtml_to_adf(xhtml: str) -> Dict[str, Any]:
 
     # Then convert Markdown to ADF
     from .adf_helper import markdown_to_adf
+
     return markdown_to_adf(markdown)
 
 
@@ -415,6 +443,7 @@ def adf_to_xhtml(adf: Dict[str, Any]) -> str:
     """
     # First convert to Markdown
     from .adf_helper import adf_to_markdown
+
     markdown = adf_to_markdown(adf)
 
     # Then convert Markdown to XHTML
@@ -432,11 +461,11 @@ def extract_text_from_xhtml(xhtml: str) -> str:
         Plain text content
     """
     # Remove all HTML tags
-    text = re.sub(r'<[^>]+>', ' ', xhtml)
+    text = re.sub(r"<[^>]+>", " ", xhtml)
     # Unescape HTML entities
     text = html.unescape(text)
     # Collapse whitespace
-    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r"\s+", " ", text)
     return text.strip()
 
 
@@ -465,26 +494,29 @@ def validate_xhtml(xhtml: str) -> Tuple[bool, Optional[str]]:
     """
     # Basic validation - check for unbalanced tags
     tag_stack: list[str] = []
-    tag_pattern = re.compile(r'<(/?)(\w+)[^>]*(/?)>')
+    tag_pattern = re.compile(r"<(/?)(\w+)[^>]*(/?)>")
 
     for match in tag_pattern.finditer(xhtml):
-        is_closing = match.group(1) == '/'
+        is_closing = match.group(1) == "/"
         tag_name = match.group(2).lower()
-        is_self_closing = match.group(3) == '/'
+        is_self_closing = match.group(3) == "/"
 
         # Skip self-closing tags
         if is_self_closing:
             continue
 
         # Skip void elements
-        void_elements = {'br', 'hr', 'img', 'input', 'meta', 'link'}
+        void_elements = {"br", "hr", "img", "input", "meta", "link"}
         if tag_name in void_elements:
             continue
 
         if is_closing:
             if not tag_stack or tag_stack[-1] != tag_name:
-                expected = tag_stack[-1] if tag_stack else 'none'
-                return False, f"Unexpected closing tag </{tag_name}>, expected </{expected}>"
+                expected = tag_stack[-1] if tag_stack else "none"
+                return (
+                    False,
+                    f"Unexpected closing tag </{tag_name}>, expected </{expected}>",
+                )
             tag_stack.pop()
         else:
             tag_stack.append(tag_name)

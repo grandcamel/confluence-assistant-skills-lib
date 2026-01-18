@@ -41,9 +41,7 @@ class TestFormatPage:
         page = {
             "id": "12345",
             "title": "Test Page",
-            "labels": {
-                "results": [{"name": "label1"}, {"name": "label2"}]
-            },
+            "labels": {"results": [{"name": "label1"}, {"name": "label2"}]},
         }
         result = format_page(page, detailed=True)
         assert "label1" in result

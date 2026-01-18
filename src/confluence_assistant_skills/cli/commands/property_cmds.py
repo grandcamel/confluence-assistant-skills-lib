@@ -95,16 +95,22 @@ def list_properties(
 
     # Sort properties
     if sort == "version":
-        properties.sort(key=lambda p: p.get("version", {}).get("number", 0), reverse=True)
+        properties.sort(
+            key=lambda p: p.get("version", {}).get("number", 0), reverse=True
+        )
     else:
         properties.sort(key=lambda p: p.get("key", ""))
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "properties": properties,
-            "count": len(properties),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "properties": properties,
+                    "count": len(properties),
+                }
+            )
+        )
     else:
         click.echo(f"\nProperties on: {page_title} ({page_id})")
         click.echo(f"{'=' * 60}\n")
@@ -116,7 +122,9 @@ def list_properties(
                 for prop in properties:
                     click.echo(f"Key: {prop.get('key', 'N/A')}")
                     click.echo(f"  ID: {prop.get('id', 'N/A')}")
-                    click.echo(f"  Version: {prop.get('version', {}).get('number', 'N/A')}")
+                    click.echo(
+                        f"  Version: {prop.get('version', {}).get('number', 'N/A')}"
+                    )
                     value = prop.get("value", {})
                     if isinstance(value, dict):
                         click.echo(f"  Value: {json.dumps(value, indent=4)[:200]}")
@@ -132,17 +140,21 @@ def list_properties(
                     else:
                         value_str = str(value)[:30]
 
-                    data.append({
-                        "key": prop.get("key", "")[:30],
-                        "version": prop.get("version", {}).get("number", "N/A"),
-                        "value": value_str,
-                    })
+                    data.append(
+                        {
+                            "key": prop.get("key", "")[:30],
+                            "version": prop.get("version", {}).get("number", "N/A"),
+                            "value": value_str,
+                        }
+                    )
 
-                click.echo(format_table(
-                    data,
-                    columns=["key", "version", "value"],
-                    headers=["Key", "Ver", "Value (preview)"],
-                ))
+                click.echo(
+                    format_table(
+                        data,
+                        columns=["key", "version", "value"],
+                        headers=["Key", "Ver", "Value (preview)"],
+                    )
+                )
 
     print_success(f"Found {len(properties)} property(ies)")
 
@@ -188,11 +200,13 @@ def get_properties(
         properties = [prop]
     else:
         # Get all properties
-        properties = list(client.paginate(
-            f"/rest/api/content/{page_id}/property",
-            params=params,
-            operation="get properties",
-        ))
+        properties = list(
+            client.paginate(
+                f"/rest/api/content/{page_id}/property",
+                params=params,
+                operation="get properties",
+            )
+        )
 
     if output == "json":
         result: dict[str, Any] = {
@@ -231,7 +245,13 @@ def get_properties(
 @click.argument("page_id")
 @click.argument("key")
 @click.option("--value", "-v", help="Property value (string or JSON)")
-@click.option("--file", "-f", "file_path", type=click.Path(exists=True, path_type=Path), help="Read value from JSON file")  # type: ignore[type-var]
+@click.option(
+    "--file",
+    "-f",
+    "file_path",
+    type=click.Path(exists=True, path_type=Path),  # type: ignore[type-var]
+    help="Read value from JSON file",
+)
 @click.option(
     "--update", is_flag=True, help="Update existing property (fetches current version)"
 )
@@ -320,10 +340,14 @@ def set_property(
         )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "property": result,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "property": result,
+                }
+            )
+        )
     else:
         click.echo("\nProperty set successfully")
         click.echo(f"  Page: {page_title} ({page_id})")
@@ -381,12 +405,16 @@ def delete_property(
 
     if not prop_exists:
         if output == "json":
-            click.echo(format_json({
-                "page": {"id": page_id, "title": page_title},
-                "key": key,
-                "deleted": False,
-                "error": "Property not found",
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "page": {"id": page_id, "title": page_title},
+                        "key": key,
+                        "deleted": False,
+                        "error": "Property not found",
+                    }
+                )
+            )
         else:
             print_warning(f"Property '{key}' not found on page {page_id}")
         return
@@ -407,11 +435,15 @@ def delete_property(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "key": key,
-            "deleted": True,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "key": key,
+                    "deleted": True,
+                }
+            )
+        )
     else:
         click.echo("\nProperty deleted successfully")
         click.echo(f"  Page: {page_title} ({page_id})")

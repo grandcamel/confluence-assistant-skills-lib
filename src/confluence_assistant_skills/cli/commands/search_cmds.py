@@ -31,12 +31,32 @@ CQL_FIELDS = [
     {"name": "text", "description": "Full text search", "example": 'text ~ "config"'},
     {"name": "type", "description": "Content type", "example": "type = page"},
     {"name": "label", "description": "Content label", "example": 'label = "docs"'},
-    {"name": "creator", "description": "Content creator", "example": "creator = currentUser()"},
-    {"name": "contributor", "description": "Any contributor", "example": 'contributor = "email"'},
-    {"name": "created", "description": "Creation date", "example": 'created >= "2024-01-01"'},
-    {"name": "lastModified", "description": "Last modified", "example": "lastModified > startOfWeek()"},
+    {
+        "name": "creator",
+        "description": "Content creator",
+        "example": "creator = currentUser()",
+    },
+    {
+        "name": "contributor",
+        "description": "Any contributor",
+        "example": 'contributor = "email"',
+    },
+    {
+        "name": "created",
+        "description": "Creation date",
+        "example": 'created >= "2024-01-01"',
+    },
+    {
+        "name": "lastModified",
+        "description": "Last modified",
+        "example": "lastModified > startOfWeek()",
+    },
     {"name": "parent", "description": "Parent page ID", "example": "parent = 12345"},
-    {"name": "ancestor", "description": "Ancestor page ID", "example": "ancestor = 12345"},
+    {
+        "name": "ancestor",
+        "description": "Ancestor page ID",
+        "example": "ancestor = 12345",
+    },
     {"name": "id", "description": "Content ID", "example": "id = 12345"},
 ]
 
@@ -69,7 +89,9 @@ CQL_FUNCTIONS = [
 CONTENT_TYPES = ["page", "blogpost", "comment", "attachment"]
 
 
-def _build_cql_from_text(query: str, space: str | None, content_type: str | None) -> str:
+def _build_cql_from_text(
+    query: str, space: str | None, content_type: str | None
+) -> str:
     """Build CQL query from text search parameters."""
     parts = [f'text ~ "{query}"']
 
@@ -82,7 +104,9 @@ def _build_cql_from_text(query: str, space: str | None, content_type: str | None
     return " AND ".join(parts)
 
 
-def _format_search_result(result: dict[str, Any], show_excerpts: bool = False) -> dict[str, Any]:
+def _format_search_result(
+    result: dict[str, Any], show_excerpts: bool = False
+) -> dict[str, Any]:
     """Format a search result for display."""
     content = result.get("content", result)
 
@@ -90,7 +114,9 @@ def _format_search_result(result: dict[str, Any], show_excerpts: bool = False) -
         "id": content.get("id", ""),
         "title": content.get("title", "Untitled"),
         "type": content.get("type", "page"),
-        "space": content.get("space", {}).get("key", result.get("resultGlobalContainer", {}).get("title", "")),
+        "space": content.get("space", {}).get(
+            "key", result.get("resultGlobalContainer", {}).get("title", "")
+        ),
     }
 
     if show_excerpts:
@@ -215,11 +241,15 @@ def cql_search(
     _add_to_history(cql.strip(), len(results))
 
     if output == "json":
-        click.echo(format_json({
-            "query": cql,
-            "count": len(results),
-            "results": results,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "query": cql,
+                    "count": len(results),
+                    "results": results,
+                }
+            )
+        )
     else:
         click.echo(f"\nCQL: {cql}")
         click.echo(f"{'=' * 60}\n")
@@ -239,7 +269,9 @@ def cql_search(
 
                 if show_labels:
                     content = r.get("content", r)
-                    labels = content.get("metadata", {}).get("labels", {}).get("results", [])
+                    labels = (
+                        content.get("metadata", {}).get("labels", {}).get("results", [])
+                    )
                     row["labels"] = ", ".join(lbl.get("name", "") for lbl in labels[:3])
 
                 data.append(row)
@@ -315,12 +347,16 @@ def search_content(
             break
 
     if output == "json":
-        click.echo(format_json({
-            "query": query,
-            "cql": cql,
-            "count": len(results),
-            "results": results,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "query": query,
+                    "cql": cql,
+                    "count": len(results),
+                    "results": results,
+                }
+            )
+        )
     else:
         click.echo(f"\nSearch: {query}")
         if space:
@@ -333,18 +369,22 @@ def search_content(
             data = []
             for r in results:
                 formatted = _format_search_result(r)
-                data.append({
-                    "id": formatted["id"],
-                    "title": formatted["title"][:50],
-                    "type": formatted["type"],
-                    "space": formatted["space"],
-                })
+                data.append(
+                    {
+                        "id": formatted["id"],
+                        "title": formatted["title"][:50],
+                        "type": formatted["type"],
+                        "space": formatted["space"],
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["id", "title", "type", "space"],
-                headers=["ID", "Title", "Type", "Space"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["id", "title", "type", "space"],
+                    headers=["ID", "Title", "Type", "Space"],
+                )
+            )
 
     print_success(f"Found {len(results)} result(s)")
 
@@ -373,8 +413,8 @@ def cql_validate(cql: str) -> None:
 
         # Provide suggestions
         click.echo("\n--- CQL Tips ---")
-        click.echo("• Use double quotes for values: space = \"DOCS\"")
-        click.echo("• Use ~ for text search: text ~ \"search term\"")
+        click.echo('• Use double quotes for values: space = "DOCS"')
+        click.echo('• Use ~ for text search: text ~ "search term"')
         click.echo("• Dates format: YYYY-MM-DD or functions like startOfWeek()")
         click.echo("\nRun 'confluence search suggest --fields' for available fields")
 
@@ -415,14 +455,18 @@ def cql_suggest(
         field_lower = field.lower()
         if field_lower == "space":
             client = get_confluence_client()
-            spaces = list(client.paginate(
-                "/api/v2/spaces", params={"limit": 25}, operation="get spaces"
-            ))
+            spaces = list(
+                client.paginate(
+                    "/api/v2/spaces", params={"limit": 25}, operation="get spaces"
+                )
+            )
             result["space_values"] = [s.get("key") for s in spaces]
         elif field_lower == "type":
             result["type_values"] = CONTENT_TYPES
         else:
-            result["note"] = f"Dynamic values for '{field}' - check your Confluence instance"
+            result["note"] = (
+                f"Dynamic values for '{field}' - check your Confluence instance"
+            )
 
     if operators:
         result["operators"] = CQL_OPERATORS
@@ -518,8 +562,12 @@ def export_results(
             "title": content.get("title", ""),
             "type": content.get("type", ""),
             "space": content.get("space", {}).get("key", ""),
-            "created": content.get("version", {}).get("when", "")[:10] if content.get("version") else "",
-            "lastModified": result.get("lastModified", "")[:10] if result.get("lastModified") else "",
+            "created": content.get("version", {}).get("when", "")[:10]
+            if content.get("version")
+            else "",
+            "lastModified": result.get("lastModified", "")[:10]
+            if result.get("lastModified")
+            else "",
             "url": result.get("url", ""),
         }
         results.append(row)
@@ -533,7 +581,9 @@ def export_results(
     # Write to file
     if export_format == "csv":
         with output_path.open("w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=selected_columns, extrasaction="ignore")
+            writer = csv.DictWriter(
+                f, fieldnames=selected_columns, extrasaction="ignore"
+            )
             writer.writeheader()
             writer.writerows(results)
     else:
@@ -616,8 +666,12 @@ def streaming_export(
             "title": content.get("title", ""),
             "type": content.get("type", ""),
             "space": content.get("space", {}).get("key", ""),
-            "created": content.get("version", {}).get("when", "")[:10] if content.get("version") else "",
-            "lastModified": result.get("lastModified", "")[:10] if result.get("lastModified") else "",
+            "created": content.get("version", {}).get("when", "")[:10]
+            if content.get("version")
+            else "",
+            "lastModified": result.get("lastModified", "")[:10]
+            if result.get("lastModified")
+            else "",
             "url": result.get("url", ""),
         }
         results.append(row)
@@ -632,7 +686,9 @@ def streaming_export(
     if export_format == "csv":
         mode = "a" if resume and output_path.exists() else "w"
         with output_path.open(mode, newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=selected_columns, extrasaction="ignore")
+            writer = csv.DictWriter(
+                f, fieldnames=selected_columns, extrasaction="ignore"
+            )
             if mode == "w":
                 writer.writeheader()
             writer.writerows(results)
@@ -712,8 +768,7 @@ def history_search(keyword: str, output: str) -> None:
     history = _load_history()
 
     matches = [
-        entry for entry in history
-        if keyword.lower() in entry.get("query", "").lower()
+        entry for entry in history if keyword.lower() in entry.get("query", "").lower()
     ]
 
     if output == "json":
@@ -796,7 +851,9 @@ def history_export(output_file: str, export_format: str) -> None:
     if export_format == "csv":
         with output_path.open("w", newline="", encoding="utf-8") as f:
             if history:
-                writer = csv.DictWriter(f, fieldnames=["timestamp", "query", "result_count"])
+                writer = csv.DictWriter(
+                    f, fieldnames=["timestamp", "query", "result_count"]
+                )
                 writer.writeheader()
                 writer.writerows(history)
     else:
@@ -818,7 +875,8 @@ def history_cleanup(days: int) -> None:
 
     original_count = len(history)
     history = [
-        entry for entry in history
+        entry
+        for entry in history
         if datetime.fromisoformat(entry.get("timestamp", "1970-01-01")) > cutoff
     ]
 
@@ -865,7 +923,9 @@ def cql_interactive(
 
     # Prompt for additional conditions
     while True:
-        click.echo("Available fields: space, title, text, type, label, creator, created, lastModified")
+        click.echo(
+            "Available fields: space, title, text, type, label, creator, created, lastModified"
+        )
         field = click.prompt("Enter field (or 'done' to finish)", default="done")
 
         if field.lower() == "done":
@@ -898,9 +958,11 @@ def cql_interactive(
         client = get_confluence_client()
 
         params = {"cql": cql, "limit": limit}
-        results = list(client.paginate(
-            "/rest/api/search", params=params, operation="interactive search"
-        ))
+        results = list(
+            client.paginate(
+                "/rest/api/search", params=params, operation="interactive search"
+            )
+        )
 
         _add_to_history(cql, len(results))
 
@@ -910,20 +972,24 @@ def cql_interactive(
             data = []
             for r in results[:limit]:
                 formatted = _format_search_result(r)
-                data.append({
-                    "id": formatted["id"],
-                    "title": formatted["title"][:40],
-                    "type": formatted["type"],
-                    "space": formatted["space"],
-                })
+                data.append(
+                    {
+                        "id": formatted["id"],
+                        "title": formatted["title"][:40],
+                        "type": formatted["type"],
+                        "space": formatted["space"],
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["id", "title", "type", "space"],
-                headers=["ID", "Title", "Type", "Space"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["id", "title", "type", "space"],
+                    headers=["ID", "Title", "Type", "Space"],
+                )
+            )
 
         print_success(f"Found {len(results)} result(s)")
     else:
         click.echo("Query not executed. Copy and run later:")
-        click.echo(f"\n  confluence search cql \"{cql}\"")
+        click.echo(f'\n  confluence search cql "{cql}"')

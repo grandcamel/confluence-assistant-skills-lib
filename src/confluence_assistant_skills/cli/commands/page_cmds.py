@@ -137,7 +137,9 @@ def get_page(
 @page.command(name="create")
 @click.option("--space", "-s", required=True, help="Space key")
 @click.option("--title", "-t", required=True, help="Page title")
-@click.option("--body", "-b", "body_content", help="Page body content (Markdown or XHTML)")
+@click.option(
+    "--body", "-b", "body_content", help="Page body content (Markdown or XHTML)"
+)
 @click.option(
     "--file",
     "-f",

@@ -64,7 +64,7 @@ class TestCache:
 
         stats = cache.get_stats()
         # CacheStats has entry_count attribute
-        assert hasattr(stats, 'entry_count')
+        assert hasattr(stats, "entry_count")
         assert stats.entry_count >= 2
 
     def test_category_isolation(self, cache):
@@ -98,6 +98,7 @@ class TestCachedDecorator:
 
     def test_different_args_produce_different_results(self):
         """Test that different arguments produce different results."""
+
         @cached(ttl=timedelta(seconds=60))
         def add(a, b):
             return a + b

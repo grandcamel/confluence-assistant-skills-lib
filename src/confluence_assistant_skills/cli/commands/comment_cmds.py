@@ -28,7 +28,9 @@ def _format_comment(comment: dict[str, Any], detailed: bool = False) -> dict[str
         "id": comment.get("id", ""),
         "type": comment.get("type", "comment"),
         "status": comment.get("status", ""),
-        "created": comment.get("createdAt", "")[:10] if comment.get("createdAt") else "",
+        "created": comment.get("createdAt", "")[:10]
+        if comment.get("createdAt")
+        else "",
         "author": comment.get("author", {}).get("displayName", "Unknown"),
     }
 
@@ -103,11 +105,15 @@ def get_comments(
             break
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "comments": comments,
-            "count": len(comments),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "comments": comments,
+                    "count": len(comments),
+                }
+            )
+        )
     else:
         click.echo(f"\nComments on: {page_title} ({page_id})")
         click.echo(f"{'=' * 60}\n")
@@ -124,12 +130,14 @@ def get_comments(
                     body_preview = body_data["storage"].get("value", "")[:50]
                     body_preview = body_preview.replace("\n", " ")
 
-                data.append({
-                    "id": formatted["id"],
-                    "author": formatted["author"][:20],
-                    "created": formatted["created"],
-                    "preview": body_preview,
-                })
+                data.append(
+                    {
+                        "id": formatted["id"],
+                        "author": formatted["author"][:20],
+                        "created": formatted["created"],
+                        "preview": body_preview,
+                    }
+                )
 
             click.echo(
                 format_table(
@@ -252,7 +260,9 @@ def add_inline_comment(
     # Find selection position
     selection_index = page_body.find(selection)
     if selection_index == -1:
-        raise ValidationError(f"Selection text not found in page: '{selection[:50]}...'")
+        raise ValidationError(
+            f"Selection text not found in page: '{selection[:50]}...'"
+        )
 
     # Create inline comment
     comment_data: dict[str, Any] = {

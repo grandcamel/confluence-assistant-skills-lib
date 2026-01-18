@@ -19,13 +19,11 @@ import pytest
 # PYTEST HOOKS
 # =============================================================================
 
+
 def pytest_addoption(parser):
     """Add custom command-line options."""
     parser.addoption(
-        "--live",
-        action="store_true",
-        default=False,
-        help="Run live integration tests"
+        "--live", action="store_true", default=False, help="Run live integration tests"
     )
 
 
@@ -34,7 +32,9 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "slow: marks tests as slow")
     config.addinivalue_line("markers", "integration: marks integration tests")
     config.addinivalue_line("markers", "live: marks tests requiring live API")
-    config.addinivalue_line("markers", "destructive: mark test as making destructive changes")
+    config.addinivalue_line(
+        "markers", "destructive: mark test as making destructive changes"
+    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -49,6 +49,7 @@ def pytest_collection_modifyitems(config, items):
 # =============================================================================
 # TEMPORARY DIRECTORY FIXTURES
 # =============================================================================
+
 
 @pytest.fixture
 def temp_path():
@@ -73,6 +74,7 @@ def temp_dir(temp_path):
 # PROJECT STRUCTURE FIXTURES
 # =============================================================================
 
+
 @pytest.fixture
 def claude_project_structure(temp_path):
     """Create a standard .claude project structure."""
@@ -85,7 +87,7 @@ def claude_project_structure(temp_path):
     shared_lib.mkdir(parents=True)
 
     settings = claude_dir / "settings.json"
-    settings.write_text('{}')
+    settings.write_text("{}")
 
     return {
         "root": project,
@@ -99,7 +101,7 @@ def claude_project_structure(temp_path):
 @pytest.fixture
 def sample_skill_md():
     """Return sample SKILL.md content."""
-    return '''---
+    return """---
 name: sample-skill
 description: A sample skill for testing.
 ---
@@ -111,4 +113,4 @@ description: A sample skill for testing.
 ```bash
 echo "Hello"
 ```
-'''
+"""

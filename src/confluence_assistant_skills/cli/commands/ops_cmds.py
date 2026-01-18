@@ -51,6 +51,7 @@ def ops() -> None:
 # Cache Status
 # ============================================================================
 
+
 @ops.command(name="cache-status")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed cache entries")
 @click.option(
@@ -104,12 +105,14 @@ def cache_status(
                             stats["newestEntry"] = mtime
 
                         if verbose:
-                            entries.append({
-                                "category": category_name,
-                                "file": cache_file.name,
-                                "size": file_stat.st_size,
-                                "modified": mtime.isoformat(),
-                            })
+                            entries.append(
+                                {
+                                    "category": category_name,
+                                    "file": cache_file.name,
+                                    "size": file_stat.st_size,
+                                    "modified": mtime.isoformat(),
+                                }
+                            )
 
                 stats["categories"][category_name] = category_stats
                 stats["totalEntries"] += category_stats["entries"]
@@ -153,17 +156,21 @@ def cache_status(
             click.echo(f"\nCache Entries ({len(entries)} total):")
             data = []
             for e in entries[:20]:
-                data.append({
-                    "category": e["category"][:12],
-                    "file": e["file"][:30],
-                    "size": _format_bytes(e["size"]),
-                    "modified": e["modified"][:19],
-                })
-            click.echo(format_table(
-                data,
-                columns=["category", "file", "size", "modified"],
-                headers=["Category", "File", "Size", "Modified"],
-            ))
+                data.append(
+                    {
+                        "category": e["category"][:12],
+                        "file": e["file"][:30],
+                        "size": _format_bytes(e["size"]),
+                        "modified": e["modified"][:19],
+                    }
+                )
+            click.echo(
+                format_table(
+                    data,
+                    columns=["category", "file", "size", "modified"],
+                    headers=["Category", "File", "Size", "Modified"],
+                )
+            )
             if len(entries) > 20:
                 click.echo(f"  ... and {len(entries) - 20} more")
 
@@ -174,8 +181,11 @@ def cache_status(
 # Cache Clear
 # ============================================================================
 
+
 @ops.command(name="cache-clear")
-@click.option("--category", help="Clear only specific category (spaces, pages, users, etc.)")
+@click.option(
+    "--category", help="Clear only specific category (spaces, pages, users, etc.)"
+)
 @click.option("--pattern", help="Clear keys matching pattern")
 @click.option("--older-than", type=int, help="Clear entries older than N days")
 @click.option("--force", "-f", is_flag=True, help="Skip confirmation prompt")
@@ -201,7 +211,9 @@ def cache_clear(
 
     if not cache_dir.exists():
         if output == "json":
-            click.echo(format_json({"cleared": 0, "error": "Cache directory does not exist"}))
+            click.echo(
+                format_json({"cleared": 0, "error": "Cache directory does not exist"})
+            )
         else:
             print_warning("Cache directory does not exist")
         return
@@ -234,15 +246,19 @@ def cache_clear(
                 if file_stat.st_mtime >= cutoff_time:
                     continue
 
-            files_to_clear.append({
-                "path": cache_file,
-                "category": category_dir.name,
-                "size": cache_file.stat().st_size,
-            })
+            files_to_clear.append(
+                {
+                    "path": cache_file,
+                    "category": category_dir.name,
+                    "size": cache_file.stat().st_size,
+                }
+            )
 
     if not files_to_clear:
         if output == "json":
-            click.echo(format_json({"cleared": 0, "message": "No matching cache entries"}))
+            click.echo(
+                format_json({"cleared": 0, "message": "No matching cache entries"})
+            )
         else:
             click.echo("No matching cache entries to clear.")
         return
@@ -251,18 +267,24 @@ def cache_clear(
 
     if dry_run:
         if output == "json":
-            click.echo(format_json({
-                "dryRun": True,
-                "wouldClear": len(files_to_clear),
-                "totalSize": total_size,
-                "files": [
-                    {"category": f["category"], "file": f["path"].name}
-                    for f in files_to_clear[:50]
-                ],
-            }))
+            click.echo(
+                format_json(
+                    {
+                        "dryRun": True,
+                        "wouldClear": len(files_to_clear),
+                        "totalSize": total_size,
+                        "files": [
+                            {"category": f["category"], "file": f["path"].name}
+                            for f in files_to_clear[:50]
+                        ],
+                    }
+                )
+            )
         else:
-            click.echo(f"\n[DRY RUN] Would clear {len(files_to_clear)} cache entries "
-                       f"({_format_bytes(total_size)}):\n")
+            click.echo(
+                f"\n[DRY RUN] Would clear {len(files_to_clear)} cache entries "
+                f"({_format_bytes(total_size)}):\n"
+            )
             for f in files_to_clear[:10]:
                 click.echo(f"  - [{f['category']}] {f['path'].name}")
             if len(files_to_clear) > 10:
@@ -270,8 +292,10 @@ def cache_clear(
         return
 
     if not force:
-        click.echo(f"\nAbout to clear {len(files_to_clear)} cache entries "
-                   f"({_format_bytes(total_size)})")
+        click.echo(
+            f"\nAbout to clear {len(files_to_clear)} cache entries "
+            f"({_format_bytes(total_size)})"
+        )
         print_warning("This may slow down subsequent API calls until cache is rebuilt.")
 
         if not click.confirm("Continue?", default=True):
@@ -300,11 +324,15 @@ def cache_clear(
                 pass
 
     if output == "json":
-        click.echo(format_json({
-            "cleared": cleared,
-            "totalSize": total_size,
-            "errors": errors if errors else None,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "cleared": cleared,
+                    "totalSize": total_size,
+                    "errors": errors if errors else None,
+                }
+            )
+        )
     else:
         click.echo("\nCache cleared")
         click.echo(f"  Entries removed: {cleared}")
@@ -321,6 +349,7 @@ def cache_clear(
 # ============================================================================
 # Cache Warm
 # ============================================================================
+
 
 @ops.command(name="cache-warm")
 @click.option("--spaces", is_flag=True, help="Warm cache with space list")
@@ -344,9 +373,7 @@ def cache_warm(
 ) -> None:
     """Pre-warm cache with commonly accessed data."""
     if not spaces and not space and not warm_all:
-        raise ValidationError(
-            "At least one of --spaces, --space, or --all is required"
-        )
+        raise ValidationError("At least one of --spaces, --space, or --all is required")
 
     client = get_confluence_client()
 
@@ -359,15 +386,19 @@ def cache_warm(
             if verbose and output == "text":
                 click.echo("  Warming: space list...")
 
-            space_list = list(client.paginate(
-                "/api/v2/spaces",
-                params={"limit": 100},
-                operation="warm space list",
-            ))
-            warmed.append({
-                "type": "space_list",
-                "count": len(space_list),
-            })
+            space_list = list(
+                client.paginate(
+                    "/api/v2/spaces",
+                    params={"limit": 100},
+                    operation="warm space list",
+                )
+            )
+            warmed.append(
+                {
+                    "type": "space_list",
+                    "count": len(space_list),
+                }
+            )
         except Exception as e:
             errors.append({"type": "space_list", "error": str(e)})
 
@@ -378,11 +409,13 @@ def cache_warm(
             if verbose and output == "text":
                 click.echo(f"  Warming: space {space}...")
 
-            space_info = list(client.paginate(
-                "/api/v2/spaces",
-                params={"keys": space},
-                operation=f"warm space {space}",
-            ))
+            space_info = list(
+                client.paginate(
+                    "/api/v2/spaces",
+                    params={"keys": space},
+                    operation=f"warm space {space}",
+                )
+            )
 
             if space_info:
                 space_id = space_info[0].get("id")
@@ -396,15 +429,19 @@ def cache_warm(
 
                 # Get recent pages
                 try:
-                    pages = list(client.paginate(
-                        "/api/v2/pages",
-                        params={"space-id": space_id, "limit": 25},
-                        operation=f"warm space {space} pages",
-                    ))
-                    warmed.append({
-                        "type": f"space_{space}",
-                        "pages": len(pages),
-                    })
+                    pages = list(
+                        client.paginate(
+                            "/api/v2/pages",
+                            params={"space-id": space_id, "limit": 25},
+                            operation=f"warm space {space} pages",
+                        )
+                    )
+                    warmed.append(
+                        {
+                            "type": f"space_{space}",
+                            "pages": len(pages),
+                        }
+                    )
                 except Exception:  # nosec B110
                     pass
 
@@ -426,20 +463,26 @@ def cache_warm(
             # Warm groups
             if verbose and output == "text":
                 click.echo("  Warming: groups...")
-            groups = list(client.paginate(
-                "/rest/api/group",
-                params={"limit": 50},
-                operation="warm groups",
-            ))
+            groups = list(
+                client.paginate(
+                    "/rest/api/group",
+                    params={"limit": 50},
+                    operation="warm groups",
+                )
+            )
             warmed.append({"type": "groups", "count": len(groups)})
         except Exception as e:
             errors.append({"type": "groups", "error": str(e)})
 
     if output == "json":
-        click.echo(format_json({
-            "warmed": warmed,
-            "errors": errors if errors else None,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "warmed": warmed,
+                    "errors": errors if errors else None,
+                }
+            )
+        )
     else:
         click.echo("\nCache Warm Complete")
         click.echo(f"{'=' * 60}\n")
@@ -460,6 +503,7 @@ def cache_warm(
 # ============================================================================
 # Health Check
 # ============================================================================
+
 
 @ops.command(name="health-check")
 @click.option("--endpoint", help="Test specific endpoint")
@@ -506,17 +550,21 @@ def health_check(
         try:
             client.get(endpoint, operation=f"health check - {endpoint}")
             ep_time = (time.time() - ep_start) * 1000
-            results["endpoints"].append({
-                "path": endpoint,
-                "status": "ok",
-                "time": round(ep_time, 0),
-            })
+            results["endpoints"].append(
+                {
+                    "path": endpoint,
+                    "status": "ok",
+                    "time": round(ep_time, 0),
+                }
+            )
         except Exception as e:
-            results["endpoints"].append({
-                "path": endpoint,
-                "status": "error",
-                "error": str(e),
-            })
+            results["endpoints"].append(
+                {
+                    "path": endpoint,
+                    "status": "error",
+                    "error": str(e),
+                }
+            )
     else:
         # Test standard endpoints
         test_endpoints = [
@@ -528,23 +576,29 @@ def health_check(
         for ep_path, api_ver in test_endpoints:
             ep_start = time.time()
             try:
-                client.get(ep_path, params={"limit": 1}, operation=f"health check - {ep_path}")
+                client.get(
+                    ep_path, params={"limit": 1}, operation=f"health check - {ep_path}"
+                )
                 ep_time = (time.time() - ep_start) * 1000
-                results["endpoints"].append({
-                    "path": ep_path,
-                    "api": api_ver,
-                    "status": "ok",
-                    "time": round(ep_time, 0),
-                })
+                results["endpoints"].append(
+                    {
+                        "path": ep_path,
+                        "api": api_ver,
+                        "status": "ok",
+                        "time": round(ep_time, 0),
+                    }
+                )
                 if results["apiVersion"] is None:
                     results["apiVersion"] = api_ver
             except Exception as e:
-                results["endpoints"].append({
-                    "path": ep_path,
-                    "api": api_ver,
-                    "status": "error",
-                    "error": str(e),
-                })
+                results["endpoints"].append(
+                    {
+                        "path": ep_path,
+                        "api": api_ver,
+                        "status": "error",
+                        "error": str(e),
+                    }
+                )
 
     if output == "json":
         click.echo(format_json(results))
@@ -586,6 +640,7 @@ def health_check(
 # ============================================================================
 # Rate Limit Status
 # ============================================================================
+
 
 @ops.command(name="rate-limit-status")
 @click.option(
@@ -651,7 +706,9 @@ def rate_limit_status(
         elif results["status"] == "limited":
             click.echo("Status:         - Rate Limited")
             click.echo(f"Error:          {results.get('error', 'Unknown')}")
-            click.echo(f"\nRecommendation: {results.get('recommendation', 'Wait and retry')}")
+            click.echo(
+                f"\nRecommendation: {results.get('recommendation', 'Wait and retry')}"
+            )
         else:
             click.echo("Status:         - Error")
             click.echo(f"Error:          {results.get('error', 'Unknown')}")
@@ -662,6 +719,7 @@ def rate_limit_status(
 # ============================================================================
 # API Diagnostics
 # ============================================================================
+
 
 @ops.command(name="api-diagnostics")
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed diagnostics")
@@ -739,8 +797,11 @@ def api_diagnostics(
     # Test search API
     try:
         start = time.time()
-        client.get("/rest/api/search", params={"cql": "type=page", "limit": 1},
-                   operation="diagnostics - search")
+        client.get(
+            "/rest/api/search",
+            params={"cql": "type=page", "limit": 1},
+            operation="diagnostics - search",
+        )
         diagnostics["connectivity"]["search"] = {
             "status": "ok",
             "time": round((time.time() - start) * 1000),
@@ -753,11 +814,13 @@ def api_diagnostics(
 
     # Check permissions (simplified)
     try:
-        spaces = list(client.paginate(
-            "/api/v2/spaces",
-            params={"limit": 5},
-            operation="diagnostics - spaces",
-        ))
+        spaces = list(
+            client.paginate(
+                "/api/v2/spaces",
+                params={"limit": 5},
+                operation="diagnostics - spaces",
+            )
+        )
         diagnostics["permissions"]["canListSpaces"] = True
         diagnostics["permissions"]["spacesAccessible"] = len(spaces)
     except Exception:
@@ -772,8 +835,12 @@ def api_diagnostics(
         click.echo("Environment:")
         env = diagnostics["environment"]
         click.echo(f"  Site URL:       {env['siteUrl']}")
-        click.echo(f"  Email:          {'Configured' if env['emailConfigured'] else 'Not set'}")
-        click.echo(f"  Token:          {'Configured' if env['tokenConfigured'] else 'Not set'}")
+        click.echo(
+            f"  Email:          {'Configured' if env['emailConfigured'] else 'Not set'}"
+        )
+        click.echo(
+            f"  Token:          {'Configured' if env['tokenConfigured'] else 'Not set'}"
+        )
         click.echo(f"  Cache:          {env['cacheEnabled']}")
 
         click.echo("\nConnectivity:")
@@ -781,12 +848,16 @@ def api_diagnostics(
             if result["status"] == "ok":
                 click.echo(f"  [+] {name:15} OK ({result.get('time', 'N/A')}ms)")
             else:
-                click.echo(f"  [-] {name:15} FAILED: {result.get('error', 'Unknown')[:40]}")
+                click.echo(
+                    f"  [-] {name:15} FAILED: {result.get('error', 'Unknown')[:40]}"
+                )
 
         click.echo("\nPermissions:")
         perms = diagnostics["permissions"]
         if perms.get("canListSpaces"):
-            click.echo(f"  [+] Can list spaces ({perms.get('spacesAccessible', 0)} accessible)")
+            click.echo(
+                f"  [+] Can list spaces ({perms.get('spacesAccessible', 0)} accessible)"
+            )
         else:
             click.echo("  [-] Cannot list spaces")
 

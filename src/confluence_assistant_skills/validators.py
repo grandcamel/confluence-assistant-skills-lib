@@ -25,7 +25,8 @@ def validate_page_id(page_id: Union[str, int], field_name: str = "page_id") -> s
     if not page_id_str.isdigit():
         raise ValidationError(
             f"{field_name} must be a numeric string (got: {page_id_str})",
-            operation="validation", details={"field": field_name, "value": page_id_str}
+            operation="validation",
+            details={"field": field_name, "value": page_id_str},
         )
     return page_id_str
 
@@ -43,12 +44,14 @@ def validate_space_key(
     if len(space_key) < 2 or len(space_key) > 255:
         raise ValidationError(
             f"{field_name} must be between 2 and 255 characters",
-            operation="validation", details={"field": field_name, "value": space_key}
+            operation="validation",
+            details={"field": field_name, "value": space_key},
         )
-    if not re.match(r'^[A-Za-z][A-Za-z0-9_]*$', space_key):
+    if not re.match(r"^[A-Za-z][A-Za-z0-9_]*$", space_key):
         raise ValidationError(
             f"{field_name} must start with a letter and contain only letters, numbers, and underscores",
-            operation="validation", details={"field": field_name, "value": space_key}
+            operation="validation",
+            details={"field": field_name, "value": space_key},
         )
     return space_key.upper() if allow_lowercase else space_key
 
@@ -64,11 +67,15 @@ def _validate_balanced_syntax(query: str, field_name: str) -> None:
     Raises:
         ValidationError: If quotes or parentheses are unbalanced
     """
-    if query.count('"') % 2 != 0 or query.count("'") % 2 != 0 or query.count('(') != query.count(')'):
+    if (
+        query.count('"') % 2 != 0
+        or query.count("'") % 2 != 0
+        or query.count("(") != query.count(")")
+    ):
         raise ValidationError(
             f"{field_name} has unbalanced quotes or parentheses",
             operation="validation",
-            details={"field": field_name, "value": query}
+            details={"field": field_name, "value": query},
         )
 
 
@@ -90,12 +97,13 @@ def validate_content_type(
     Validate a Confluence content type.
     """
     if allowed is None:
-        allowed = ['page', 'blogpost', 'comment', 'attachment']
+        allowed = ["page", "blogpost", "comment", "attachment"]
     content_type = validate_required(content_type, field_name).lower()
     if content_type not in allowed:
         raise ValidationError(
             f"{field_name} must be one of: {', '.join(allowed)} (got: {content_type})",
-            operation="validation", details={"field": field_name, "value": content_type}
+            operation="validation",
+            details={"field": field_name, "value": content_type},
         )
     return content_type
 
@@ -112,14 +120,16 @@ def validate_title(
     if len(title) > max_length:
         raise ValidationError(
             f"{field_name} must be at most {max_length} characters (got {len(title)})",
-            operation="validation", details={"field": field_name, "value": title}
+            operation="validation",
+            details={"field": field_name, "value": title},
         )
-    invalid_chars = [':', '|', '@', '/', '\\']
+    invalid_chars = [":", "|", "@", "/", "\\"]
     for char in invalid_chars:
         if char in title:
             raise ValidationError(
                 f"{field_name} cannot contain the character '{char}'",
-                operation="validation", details={"field": field_name, "value": title}
+                operation="validation",
+                details={"field": field_name, "value": title},
             )
     return title
 
@@ -135,17 +145,20 @@ def validate_label(
     if len(label) > 255:
         raise ValidationError(
             f"{field_name} must be at most 255 characters",
-            operation="validation", details={"field": field_name, "value": label}
+            operation="validation",
+            details={"field": field_name, "value": label},
         )
-    if ' ' in label:
+    if " " in label:
         raise ValidationError(
             f"{field_name} cannot contain spaces (use hyphens or underscores)",
-            operation="validation", details={"field": field_name, "value": label}
+            operation="validation",
+            details={"field": field_name, "value": label},
         )
-    if not re.match(r'^[a-z0-9_-]+$', label):
+    if not re.match(r"^[a-z0-9_-]+$", label):
         raise ValidationError(
             f"{field_name} can only contain letters, numbers, hyphens, and underscores",
-            operation="validation", details={"field": field_name, "value": label}
+            operation="validation",
+            details={"field": field_name, "value": label},
         )
     return label
 
@@ -184,11 +197,12 @@ def validate_issue_key(
     Validate a JIRA issue key.
     """
     issue_key = validate_required(issue_key, field_name).upper()
-    pattern = r'^[A-Z][A-Z0-9_]{0,9}-\d+$'
+    pattern = r"^[A-Z][A-Z0-9_]{0,9}-\d+$"
     if not re.match(pattern, issue_key):
         raise ValidationError(
             f"{field_name} must be in format PROJECT-123 (got: {issue_key})",
-            operation="validation", details={"field": field_name, "value": issue_key}
+            operation="validation",
+            details={"field": field_name, "value": issue_key},
         )
     return issue_key
 
@@ -251,7 +265,11 @@ def validate_file_path(
             raise ValidationError(
                 f"{field_name} must have one of these extensions: {', '.join(allowed_extensions)} (got: {ext})",
                 operation="validation",
-                details={"field": field_name, "value": str(resolved), "allowed_extensions": allowed_extensions}
+                details={
+                    "field": field_name,
+                    "value": str(resolved),
+                    "allowed_extensions": allowed_extensions,
+                },
             )
 
     return resolved

@@ -14,6 +14,7 @@ from confluence_assistant_skills import (
     validate_issue_key,
     validate_jql_query,
 )
+
 # Import from base library to catch errors from both base validators and local validators
 # Our local ValidationError is a subclass, so catching base catches both
 from assistant_skills_lib.error_handler import ValidationError

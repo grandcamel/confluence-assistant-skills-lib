@@ -49,17 +49,23 @@ def get_labels(
     page_title = page.get("title", "Unknown")
 
     # Get labels
-    labels = list(client.paginate(
-        f"/api/v2/pages/{page_id}/labels",
-        operation="get labels",
-    ))
+    labels = list(
+        client.paginate(
+            f"/api/v2/pages/{page_id}/labels",
+            operation="get labels",
+        )
+    )
 
     if output == "json":
-        click.echo(format_json({
-            "page": {"id": page_id, "title": page_title},
-            "labels": labels,
-            "count": len(labels),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": {"id": page_id, "title": page_title},
+                    "labels": labels,
+                    "count": len(labels),
+                }
+            )
+        )
     else:
         click.echo(f"\nLabels on: {page_title} ({page_id})")
         click.echo(f"{'=' * 60}\n")
@@ -163,7 +169,9 @@ def remove_label(
     )
 
     if output == "json":
-        click.echo(format_json({"success": True, "label": label_name, "pageId": page_id}))
+        click.echo(
+            format_json({"success": True, "label": label_name, "pageId": page_id})
+        )
     else:
         click.echo("\nLabel removed successfully")
         click.echo(f"  Page: {page_id}")
@@ -230,12 +238,16 @@ def search_by_label(
             break
 
     if output == "json":
-        click.echo(format_json({
-            "label": label_name,
-            "cql": cql,
-            "count": len(results),
-            "results": results,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "label": label_name,
+                    "cql": cql,
+                    "count": len(results),
+                    "results": results,
+                }
+            )
+        )
     else:
         click.echo(f"\nContent with label: {label_name}")
         if space:
@@ -248,18 +260,22 @@ def search_by_label(
             data = []
             for r in results:
                 content = r.get("content", r)
-                data.append({
-                    "id": content.get("id", ""),
-                    "title": content.get("title", "")[:40],
-                    "type": content.get("type", ""),
-                    "space": content.get("space", {}).get("key", ""),
-                })
+                data.append(
+                    {
+                        "id": content.get("id", ""),
+                        "title": content.get("title", "")[:40],
+                        "type": content.get("type", ""),
+                        "space": content.get("space", {}).get("key", ""),
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["id", "title", "type", "space"],
-                headers=["ID", "Title", "Type", "Space"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["id", "title", "type", "space"],
+                    headers=["ID", "Title", "Type", "Space"],
+                )
+            )
 
     print_success(f"Found {len(results)} result(s) with label '{label_name}'")
 
@@ -292,9 +308,11 @@ def list_popular_labels(
 
     if space:
         # Get space info first
-        spaces = list(client.paginate(
-            "/api/v2/spaces", params={"keys": space}, operation="get space"
-        ))
+        spaces = list(
+            client.paginate(
+                "/api/v2/spaces", params={"keys": space}, operation="get space"
+            )
+        )
         if not spaces:
             raise ValidationError(f"Space not found: {space}")
 
@@ -302,11 +320,13 @@ def list_popular_labels(
         # Note: This is a simplified implementation
         # A full implementation would aggregate labels from space content
         cql = f'space = "{space}" AND type = page'
-        results = list(client.paginate(
-            "/rest/api/search",
-            params={"cql": cql, "expand": "content.metadata.labels", "limit": 100},
-            operation="get space content",
-        ))
+        results = list(
+            client.paginate(
+                "/rest/api/search",
+                params={"cql": cql, "expand": "content.metadata.labels", "limit": 100},
+                operation="get space content",
+            )
+        )
 
         # Aggregate labels
         label_counts: dict[str, int] = {}
@@ -319,35 +339,51 @@ def list_popular_labels(
                     label_counts[name] = label_counts.get(name, 0) + 1
 
         # Sort by count
-        sorted_labels = sorted(label_counts.items(), key=lambda x: x[1], reverse=True)[:limit]
+        sorted_labels = sorted(label_counts.items(), key=lambda x: x[1], reverse=True)[
+            :limit
+        ]
         labels = [{"name": name, "count": count} for name, count in sorted_labels]
     else:
         # Without space filter, we need to use a different approach
         # Get labels from recent content
-        results = list(client.paginate(
-            "/rest/api/search",
-            params={"cql": "type = page", "expand": "content.metadata.labels", "limit": 200},
-            operation="get recent content",
-        ))
+        results = list(
+            client.paginate(
+                "/rest/api/search",
+                params={
+                    "cql": "type = page",
+                    "expand": "content.metadata.labels",
+                    "limit": 200,
+                },
+                operation="get recent content",
+            )
+        )
 
         label_counts = {}
         for r in results:
             content = r.get("content", {})
-            labels_data = content.get("metadata", {}).get("labels", {}).get("results", [])
+            labels_data = (
+                content.get("metadata", {}).get("labels", {}).get("results", [])
+            )
             for label_item in labels_data:
                 name = label_item.get("name", "")
                 if name:
                     label_counts[name] = label_counts.get(name, 0) + 1
 
-        sorted_labels = sorted(label_counts.items(), key=lambda x: x[1], reverse=True)[:limit]
+        sorted_labels = sorted(label_counts.items(), key=lambda x: x[1], reverse=True)[
+            :limit
+        ]
         labels = [{"name": name, "count": count} for name, count in sorted_labels]
 
     if output == "json":
-        click.echo(format_json({
-            "space": space,
-            "labels": labels,
-            "count": len(labels),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "space": space,
+                    "labels": labels,
+                    "count": len(labels),
+                }
+            )
+        )
     else:
         click.echo("\nPopular Labels")
         if space:
@@ -359,15 +395,19 @@ def list_popular_labels(
         else:
             data = []
             for lbl in labels:
-                data.append({
-                    "name": lbl["name"],
-                    "count": lbl["count"],
-                })
+                data.append(
+                    {
+                        "name": lbl["name"],
+                        "count": lbl["count"],
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["name", "count"],
-                headers=["Label", "Count"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["name", "count"],
+                    headers=["Label", "Count"],
+                )
+            )
 
     print_success(f"Found {len(labels)} popular label(s)")

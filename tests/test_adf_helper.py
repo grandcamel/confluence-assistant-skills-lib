@@ -220,10 +220,12 @@ class TestAdfToText:
         assert adf_to_text(adf) == "Hello"
 
     def test_multiple_paragraphs(self):
-        adf = create_adf_doc([
-            create_paragraph(text="Para 1"),
-            create_paragraph(text="Para 2"),
-        ])
+        adf = create_adf_doc(
+            [
+                create_paragraph(text="Para 1"),
+                create_paragraph(text="Para 2"),
+            ]
+        )
         text = adf_to_text(adf)
         assert "Para 1" in text
         assert "Para 2" in text

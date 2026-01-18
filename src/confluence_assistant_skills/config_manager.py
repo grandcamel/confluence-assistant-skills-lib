@@ -59,9 +59,9 @@ class ConfigManager(BaseConfigManager):
         Raises:
             ValidationError: If required credentials are not found or are invalid.
         """
-        url = self.get_credential_from_env('SITE_URL')
-        email = self.get_credential_from_env('EMAIL')
-        api_token = self.get_credential_from_env('API_TOKEN')
+        url = self.get_credential_from_env("SITE_URL")
+        email = self.get_credential_from_env("EMAIL")
+        api_token = self.get_credential_from_env("API_TOKEN")
 
         if not url:
             raise ValidationError(
@@ -80,6 +80,7 @@ class ConfigManager(BaseConfigManager):
             )
 
         from assistant_skills_lib.validators import validate_url, validate_email
+
         return {
             "url": validate_url(url, require_https=True),
             "email": validate_email(email),
@@ -88,6 +89,7 @@ class ConfigManager(BaseConfigManager):
 
 
 # Module-level convenience functions
+
 
 def get_confluence_client(**kwargs) -> "ConfluenceClient":
     """

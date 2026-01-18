@@ -101,7 +101,10 @@ def list_templates(
                 params=params,
                 operation="list space templates",
             ):
-                if template_type is None or tmpl.get("templateType", "").lower() == template_type:
+                if (
+                    template_type is None
+                    or tmpl.get("templateType", "").lower() == template_type
+                ):
                     templates.append(tmpl)
                 if len(templates) >= limit:
                     break
@@ -113,18 +116,25 @@ def list_templates(
                 params=params,
                 operation="list global templates",
             ):
-                if template_type is None or tmpl.get("templateType", "").lower() == template_type:
+                if (
+                    template_type is None
+                    or tmpl.get("templateType", "").lower() == template_type
+                ):
                     templates.append(tmpl)
                 if len(templates) >= limit:
                     break
 
     if output == "json":
-        click.echo(format_json({
-            "space": space,
-            "type": "blueprints" if blueprints else "templates",
-            "templates": templates,
-            "count": len(templates),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "space": space,
+                    "type": "blueprints" if blueprints else "templates",
+                    "templates": templates,
+                    "count": len(templates),
+                }
+            )
+        )
     else:
         title = "Blueprints" if blueprints else "Templates"
         click.echo(f"\n{title}")
@@ -137,18 +147,24 @@ def list_templates(
         else:
             data = []
             for tmpl in templates:
-                data.append({
-                    "id": tmpl.get("templateId", tmpl.get("id", ""))[:20],
-                    "name": tmpl.get("name", tmpl.get("title", ""))[:35],
-                    "type": tmpl.get("templateType", "page")[:10],
-                    "space": tmpl.get("_expandable", {}).get("space", "global")[-10:],
-                })
+                data.append(
+                    {
+                        "id": tmpl.get("templateId", tmpl.get("id", ""))[:20],
+                        "name": tmpl.get("name", tmpl.get("title", ""))[:35],
+                        "type": tmpl.get("templateType", "page")[:10],
+                        "space": tmpl.get("_expandable", {}).get("space", "global")[
+                            -10:
+                        ],
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["id", "name", "type", "space"],
-                headers=["ID", "Name", "Type", "Space"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["id", "name", "type", "space"],
+                    headers=["ID", "Name", "Type", "Space"],
+                )
+            )
 
     print_success(f"Found {len(templates)} template(s)")
 
@@ -349,7 +365,10 @@ def create_template(
 @click.option("--description", help="New template description")
 @click.option("--content", help="New template body content (HTML/XHTML)")
 @click.option(
-    "--file", "content_file", type=click.Path(exists=True, path_type=Path), help="File with new content"  # type: ignore[type-var]
+    "--file",
+    "content_file",
+    type=click.Path(exists=True, path_type=Path),  # type: ignore[type-var]
+    help="File with new content",
 )
 @click.option("--add-labels", help="Comma-separated labels to add")
 @click.option("--remove-labels", help="Comma-separated labels to remove")
@@ -420,7 +439,9 @@ def update_template(
         }
 
     # Handle labels
-    current_labels = [lbl.get("name") for lbl in current.get("labels", {}).get("results", [])]
+    current_labels = [
+        lbl.get("name") for lbl in current.get("labels", {}).get("results", [])
+    ]
 
     if add_labels:
         for lbl_name in add_labels.split(","):
@@ -560,11 +581,15 @@ def create_from_template(
             )
 
     if output == "json":
-        click.echo(format_json({
-            "page": result,
-            "templateId": template_id,
-            "blueprintId": blueprint_id,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "page": result,
+                    "templateId": template_id,
+                    "blueprintId": blueprint_id,
+                }
+            )
+        )
     else:
         click.echo("\nPage created from template")
         click.echo(f"  ID: {new_page_id}")

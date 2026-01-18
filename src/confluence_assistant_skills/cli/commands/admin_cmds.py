@@ -31,6 +31,7 @@ def admin() -> None:
 # User Management Subgroup
 # ============================================================================
 
+
 @admin.group()
 def user() -> None:
     """User management commands."""
@@ -40,7 +41,9 @@ def user() -> None:
 @user.command(name="search")
 @click.argument("query")
 @click.option("--include-groups", is_flag=True, help="Include group membership")
-@click.option("--limit", "-l", type=int, default=25, help="Maximum results (default: 25)")
+@click.option(
+    "--limit", "-l", type=int, default=25, help="Maximum results (default: 25)"
+)
 @click.option(
     "--output",
     "-o",
@@ -92,11 +95,15 @@ def search_users(
                     u["groups"] = []
 
     if output == "json":
-        click.echo(format_json({
-            "query": query,
-            "users": users,
-            "count": len(users),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "query": query,
+                    "users": users,
+                    "count": len(users),
+                }
+            )
+        )
     else:
         click.echo(f"\nUser Search: '{query}'")
         click.echo(f"{'=' * 60}\n")
@@ -166,7 +173,9 @@ def get_user(
         click.echo(f"Account Type: {user_data.get('accountType', 'N/A')}")
 
         if user_data.get("profilePicture"):
-            click.echo(f"Profile Picture: {user_data['profilePicture'].get('path', 'N/A')}")
+            click.echo(
+                f"Profile Picture: {user_data['profilePicture'].get('path', 'N/A')}"
+            )
 
     print_success("Retrieved user details")
 
@@ -198,11 +207,15 @@ def get_user_groups(
     groups = groups_resp.get("results", [])
 
     if output == "json":
-        click.echo(format_json({
-            "accountId": account_id,
-            "groups": groups,
-            "count": len(groups),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "accountId": account_id,
+                    "groups": groups,
+                    "count": len(groups),
+                }
+            )
+        )
     else:
         click.echo(f"\nGroups for User: {account_id}")
         click.echo(f"{'=' * 60}\n")
@@ -212,16 +225,20 @@ def get_user_groups(
         else:
             data = []
             for g in groups:
-                data.append({
-                    "name": g.get("name", "Unknown"),
-                    "type": g.get("type", "group"),
-                })
+                data.append(
+                    {
+                        "name": g.get("name", "Unknown"),
+                        "type": g.get("type", "group"),
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["name", "type"],
-                headers=["Group Name", "Type"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["name", "type"],
+                    headers=["Group Name", "Type"],
+                )
+            )
 
     print_success(f"Found {len(groups)} group(s)")
 
@@ -230,6 +247,7 @@ def get_user_groups(
 # Group Management Subgroup
 # ============================================================================
 
+
 @admin.group()
 def group() -> None:
     """Group management commands."""
@@ -237,7 +255,9 @@ def group() -> None:
 
 
 @group.command(name="list")
-@click.option("--limit", "-l", type=int, default=50, help="Maximum results (default: 50)")
+@click.option(
+    "--limit", "-l", type=int, default=50, help="Maximum results (default: 50)"
+)
 @click.option(
     "--output",
     "-o",
@@ -266,10 +286,14 @@ def list_groups(
             break
 
     if output == "json":
-        click.echo(format_json({
-            "groups": groups,
-            "count": len(groups),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "groups": groups,
+                    "count": len(groups),
+                }
+            )
+        )
     else:
         click.echo("\nGroups")
         click.echo(f"{'=' * 60}\n")
@@ -279,16 +303,20 @@ def list_groups(
         else:
             data = []
             for g in groups:
-                data.append({
-                    "name": g.get("name", "Unknown"),
-                    "type": g.get("type", "group"),
-                })
+                data.append(
+                    {
+                        "name": g.get("name", "Unknown"),
+                        "type": g.get("type", "group"),
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["name", "type"],
-                headers=["Group Name", "Type"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["name", "type"],
+                    headers=["Group Name", "Type"],
+                )
+            )
 
     print_success(f"Found {len(groups)} group(s)")
 
@@ -331,7 +359,9 @@ def get_group(
 
 @group.command(name="members")
 @click.argument("group_name")
-@click.option("--limit", "-l", type=int, default=50, help="Maximum results (default: 50)")
+@click.option(
+    "--limit", "-l", type=int, default=50, help="Maximum results (default: 50)"
+)
 @click.option(
     "--output",
     "-o",
@@ -361,11 +391,15 @@ def list_group_members(
             break
 
     if output == "json":
-        click.echo(format_json({
-            "group": group_name,
-            "members": members,
-            "count": len(members),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "group": group_name,
+                    "members": members,
+                    "count": len(members),
+                }
+            )
+        )
     else:
         click.echo(f"\nMembers of: {group_name}")
         click.echo(f"{'=' * 60}\n")
@@ -375,17 +409,23 @@ def list_group_members(
         else:
             data = []
             for m in members:
-                data.append({
-                    "name": m.get("displayName", "Unknown")[:30],
-                    "email": m.get("email", "N/A")[:30] if m.get("email") else "N/A",
-                    "type": m.get("type", "user"),
-                })
+                data.append(
+                    {
+                        "name": m.get("displayName", "Unknown")[:30],
+                        "email": m.get("email", "N/A")[:30]
+                        if m.get("email")
+                        else "N/A",
+                        "type": m.get("type", "user"),
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["name", "email", "type"],
-                headers=["Name", "Email", "Type"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["name", "email", "type"],
+                    headers=["Name", "Email", "Type"],
+                )
+            )
 
     print_success(f"Found {len(members)} member(s)")
 
@@ -461,10 +501,14 @@ def delete_group(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "group": group_name,
-            "deleted": True,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "group": group_name,
+                    "deleted": True,
+                }
+            )
+        )
     else:
         click.echo(f"\nGroup deleted: {group_name}")
 
@@ -498,11 +542,15 @@ def add_user_to_group(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "group": group_name,
-            "user": user,
-            "added": True,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "group": group_name,
+                    "user": user,
+                    "added": True,
+                }
+            )
+        )
     else:
         click.echo("\nUser added to group")
         click.echo(f"  Group: {group_name}")
@@ -547,11 +595,15 @@ def remove_user_from_group(
     )
 
     if output == "json":
-        click.echo(format_json({
-            "group": group_name,
-            "user": user,
-            "removed": True,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "group": group_name,
+                    "user": user,
+                    "removed": True,
+                }
+            )
+        )
     else:
         click.echo("\nUser removed from group")
         click.echo(f"  Group: {group_name}")
@@ -563,6 +615,7 @@ def remove_user_from_group(
 # ============================================================================
 # Space Settings Subgroup
 # ============================================================================
+
 
 @admin.group(name="space")
 def admin_space() -> None:
@@ -603,10 +656,14 @@ def get_space_settings(
         settings = {}
 
     if output == "json":
-        click.echo(format_json({
-            "space": space,
-            "settings": settings,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "space": space,
+                    "settings": settings,
+                }
+            )
+        )
     else:
         click.echo(f"\nSpace Settings: {space.get('name', space_key)} ({space_key})")
         click.echo(f"{'=' * 60}\n")
@@ -728,11 +785,15 @@ def get_space_permissions(
         permissions.append(perm)
 
     if output == "json":
-        click.echo(format_json({
-            "space": {"key": space_key, "name": space_name, "id": space_id},
-            "permissions": permissions,
-            "count": len(permissions),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "space": {"key": space_key, "name": space_name, "id": space_id},
+                    "permissions": permissions,
+                    "count": len(permissions),
+                }
+            )
+        )
     else:
         click.echo(f"\nSpace Permissions: {space_name} ({space_key})")
         click.echo(f"{'=' * 60}\n")
@@ -743,17 +804,21 @@ def get_space_permissions(
             data = []
             for perm in permissions:
                 principal = perm.get("principal", {})
-                data.append({
-                    "type": principal.get("type", "unknown"),
-                    "name": principal.get("id", "N/A")[:30],
-                    "operation": perm.get("operation", {}).get("key", "N/A"),
-                })
+                data.append(
+                    {
+                        "type": principal.get("type", "unknown"),
+                        "name": principal.get("id", "N/A")[:30],
+                        "operation": perm.get("operation", {}).get("key", "N/A"),
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["type", "name", "operation"],
-                headers=["Type", "Principal", "Operation"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["type", "name", "operation"],
+                    headers=["Type", "Principal", "Operation"],
+                )
+            )
 
     print_success(f"Found {len(permissions)} permission(s)")
 
@@ -761,6 +826,7 @@ def get_space_permissions(
 # ============================================================================
 # Template Management (Admin level)
 # ============================================================================
+
 
 @admin.group(name="template")
 def admin_template() -> None:
@@ -770,7 +836,9 @@ def admin_template() -> None:
 
 @admin_template.command(name="list")
 @click.option("--space", "-s", help="Filter by space key")
-@click.option("--limit", "-l", type=int, default=50, help="Maximum results (default: 50)")
+@click.option(
+    "--limit", "-l", type=int, default=50, help="Maximum results (default: 50)"
+)
 @click.option(
     "--output",
     "-o",
@@ -805,11 +873,15 @@ def list_templates(
             break
 
     if output == "json":
-        click.echo(format_json({
-            "space": space,
-            "templates": templates,
-            "count": len(templates),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "space": space,
+                    "templates": templates,
+                    "count": len(templates),
+                }
+            )
+        )
     else:
         title = "Templates" + (f" in {space}" if space else " (Global)")
         click.echo(f"\n{title}")
@@ -820,17 +892,21 @@ def list_templates(
         else:
             data = []
             for t in templates:
-                data.append({
-                    "id": t.get("templateId", "N/A")[:15],
-                    "name": t.get("name", "Untitled")[:35],
-                    "type": t.get("templateType", "N/A"),
-                })
+                data.append(
+                    {
+                        "id": t.get("templateId", "N/A")[:15],
+                        "name": t.get("name", "Untitled")[:35],
+                        "type": t.get("templateType", "N/A"),
+                    }
+                )
 
-            click.echo(format_table(
-                data,
-                columns=["id", "name", "type"],
-                headers=["Template ID", "Name", "Type"],
-            ))
+            click.echo(
+                format_table(
+                    data,
+                    columns=["id", "name", "type"],
+                    headers=["Template ID", "Name", "Type"],
+                )
+            )
 
     print_success(f"Found {len(templates)} template(s)")
 
@@ -885,6 +961,7 @@ def get_template(
 # Permissions Check
 # ============================================================================
 
+
 @admin.group(name="permissions")
 def admin_permissions() -> None:
     """Permission diagnostics commands."""
@@ -923,8 +1000,15 @@ def check_permissions(
 
     # Define permission operations to check
     operations = [
-        "read", "create", "delete", "export", "administer",
-        "archive", "restrict_content", "edit", "comment",
+        "read",
+        "create",
+        "delete",
+        "export",
+        "administer",
+        "archive",
+        "restrict_content",
+        "edit",
+        "comment",
     ]
 
     # Check each permission
@@ -935,15 +1019,19 @@ def check_permissions(
             # This is a simplified check - actual permission check would need
             # more sophisticated API calls
             has_permission = True  # Default to true for read operations
-            results.append({
-                "operation": op,
-                "has_permission": has_permission,
-            })
+            results.append(
+                {
+                    "operation": op,
+                    "has_permission": has_permission,
+                }
+            )
         except Exception:
-            results.append({
-                "operation": op,
-                "has_permission": False,
-            })
+            results.append(
+                {
+                    "operation": op,
+                    "has_permission": False,
+                }
+            )
 
     # Get user's groups to show context
     try:
@@ -957,12 +1045,16 @@ def check_permissions(
         user_groups = []
 
     if output == "json":
-        click.echo(format_json({
-            "user": user_name,
-            "space": {"key": space, "name": space_name},
-            "groups": user_groups,
-            "permissions": results,
-        }))
+        click.echo(
+            format_json(
+                {
+                    "user": user_name,
+                    "space": {"key": space, "name": space_name},
+                    "groups": user_groups,
+                    "permissions": results,
+                }
+            )
+        )
     else:
         click.echo(f"\nPermission Check: {space_name} ({space})")
         click.echo(f"User: {user_name}")
@@ -982,7 +1074,9 @@ def check_permissions(
             icon = "+" if r["has_permission"] else "-"
             click.echo(f"  [{icon}] {r['operation']}: {status}")
 
-        print_info("\nNote: This is a simplified permission check. "
-                   "Actual permissions may vary based on page-level restrictions.")
+        print_info(
+            "\nNote: This is a simplified permission check. "
+            "Actual permissions may vary based on page-level restrictions."
+        )
 
     print_success("Permission check complete")

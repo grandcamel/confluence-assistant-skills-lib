@@ -66,7 +66,9 @@ def list_spaces(
         params["status"] = status.lower()
 
     spaces = []
-    for space_item in client.paginate("/api/v2/spaces", params=params, operation="list spaces"):
+    for space_item in client.paginate(
+        "/api/v2/spaces", params=params, operation="list spaces"
+    ):
         # Filter by name locally since API doesn't support name search well
         if query and query.lower() not in space_item.get("name", "").lower():
             continue
@@ -82,12 +84,14 @@ def list_spaces(
         else:
             data = []
             for s in spaces:
-                data.append({
-                    "key": s.get("key", ""),
-                    "name": s.get("name", ""),
-                    "type": s.get("type", ""),
-                    "status": s.get("status", ""),
-                })
+                data.append(
+                    {
+                        "key": s.get("key", ""),
+                        "name": s.get("name", ""),
+                        "type": s.get("type", ""),
+                        "status": s.get("status", ""),
+                    }
+                )
 
             click.echo(
                 format_table(
@@ -176,7 +180,9 @@ def create_space(
             "value": description.strip(),
         }
 
-    result = client.post("/api/v2/spaces", json_data=space_data, operation="create space")
+    result = client.post(
+        "/api/v2/spaces", json_data=space_data, operation="create space"
+    )
 
     if output == "json":
         click.echo(format_json(result))
@@ -294,7 +300,9 @@ def delete_space(
     client.delete(f"/api/v2/spaces/{space_id}", operation="delete space")
 
     print_success(f"Space '{space_name}' ({space_key}) deletion started")
-    print_info("Note: Space deletion may take some time to complete depending on content volume.")
+    print_info(
+        "Note: Space deletion may take some time to complete depending on content volume."
+    )
 
 
 @space.command(name="content")
@@ -353,11 +361,15 @@ def get_space_content(
             break
 
     if output == "json":
-        click.echo(format_json({
-            "space": {"key": space_key, "name": current_space.get("name")},
-            "pages": pages,
-            "count": len(pages),
-        }))
+        click.echo(
+            format_json(
+                {
+                    "space": {"key": space_key, "name": current_space.get("name")},
+                    "pages": pages,
+                    "count": len(pages),
+                }
+            )
+        )
     else:
         click.echo(f"\nSpace: {current_space.get('name')} ({space_key})")
         click.echo(f"{'=' * 60}\n")
@@ -367,12 +379,14 @@ def get_space_content(
         else:
             data = []
             for p in pages:
-                data.append({
-                    "id": p.get("id", ""),
-                    "title": p.get("title", "")[:50],
-                    "status": p.get("status", ""),
-                    "version": p.get("version", {}).get("number", "?"),
-                })
+                data.append(
+                    {
+                        "id": p.get("id", ""),
+                        "title": p.get("title", "")[:50],
+                        "status": p.get("status", ""),
+                        "version": p.get("version", {}).get("number", "?"),
+                    }
+                )
 
             click.echo(
                 format_table(

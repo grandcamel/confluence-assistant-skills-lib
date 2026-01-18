@@ -51,10 +51,7 @@ class ResponseLogger:
 
 
 def assert_response_contains(
-    result: Dict[str, Any],
-    terms: List[str],
-    message: str,
-    match_any: bool = True
+    result: Dict[str, Any], terms: List[str], message: str, match_any: bool = True
 ) -> None:
     """
     Assert that response contains expected terms, with helpful error message.
@@ -83,10 +80,7 @@ def assert_response_contains(
             output[:2000] if output else "(empty)",
         ]
         if error:
-            error_details.extend([
-                "\n\n--- STDERR ---",
-                error[:500]
-            ])
+            error_details.extend(["\n\n--- STDERR ---", error[:500]])
         error_details.append("\n--- END RESPONSE ---\n")
 
         assert False, "".join(error_details)
@@ -196,7 +190,9 @@ def claude_runner(project_root, e2e_timeout, e2e_model, e2e_verbose, e2e_enabled
 
 
 @pytest.fixture(scope="session")
-def e2e_runner(test_cases_path, project_root, e2e_timeout, e2e_model, e2e_verbose, e2e_enabled):
+def e2e_runner(
+    test_cases_path, project_root, e2e_timeout, e2e_model, e2e_verbose, e2e_enabled
+):
     """Create E2E test runner."""
     if not e2e_enabled:
         pytest.skip("E2E tests disabled (no API key or OAuth credentials)")
@@ -217,7 +213,10 @@ def installed_plugin(claude_runner, e2e_enabled):
         pytest.skip("E2E tests disabled")
 
     result = claude_runner.install_plugin(".")
-    if not result["success"] and "already installed" not in result.get("output", "").lower():
+    if (
+        not result["success"]
+        and "already installed" not in result.get("output", "").lower()
+    ):
         pytest.fail(f"Failed to install plugin: {result.get('error', 'Unknown error')}")
 
     return result
