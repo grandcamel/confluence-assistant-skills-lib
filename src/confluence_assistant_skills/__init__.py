@@ -108,6 +108,12 @@ from .formatters import (
     strip_html_tags,
 )
 
+# Markdown Parser (shared)
+from .markdown_parser import (
+    parse_markdown,
+    is_block_start,
+)
+
 # ADF Helper
 from .adf_helper import (
     create_adf_doc,
@@ -126,7 +132,7 @@ from .adf_helper import (
     adf_to_text,
     adf_to_markdown,
     validate_adf,
-    is_markdown_block_start,
+    is_markdown_block_start,  # Re-exported alias for backward compatibility
 )
 
 # XHTML Helper
@@ -205,6 +211,9 @@ __all__ = [
     "print_info",
     "truncate",
     "strip_html_tags",
+    # Markdown Parser
+    "parse_markdown",
+    "is_block_start",
     # ADF Helper
     "create_adf_doc",
     "create_paragraph",

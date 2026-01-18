@@ -27,7 +27,7 @@ import re
 import html
 from typing import Dict, Any, Optional, Tuple
 
-from .adf_helper import is_markdown_block_start
+from .markdown_parser import parse_markdown, is_block_start
 from .formatters import strip_html_tags
 
 
@@ -291,103 +291,62 @@ def markdown_to_xhtml(markdown: str) -> str:
     if not markdown:
         return ""
 
-    lines = markdown.split('\n')
+    # Parse markdown into intermediate representation
+    blocks = parse_markdown(markdown)
+
+    if not blocks:
+        return ""
+
+    # Convert blocks to XHTML
     result = []
-    i = 0
+    for block in blocks:
+        block_type = block['type']
 
-    while i < len(lines):
-        line = lines[i]
-        stripped = line.strip()
-
-        # Empty line
-        if not stripped:
-            i += 1
-            continue
-
-        # Heading
-        heading_match = re.match(r'^(#{1,6})\s+(.+)$', stripped)
-        if heading_match:
-            level = len(heading_match.group(1))
-            text = _markdown_inline_to_xhtml(heading_match.group(2))
+        if block_type == 'heading':
+            level = block['level']
+            text = _markdown_inline_to_xhtml(block['content'])
             result.append(f'<h{level}>{text}</h{level}>')
-            i += 1
-            continue
 
-        # Horizontal rule
-        if re.match(r'^[-*_]{3,}$', stripped):
+        elif block_type == 'horizontal_rule':
             result.append('<hr />')
-            i += 1
-            continue
 
-        # Code block
-        if stripped.startswith('```'):
-            lang_match = re.match(r'^```(\w*)$', stripped)
-            language = lang_match.group(1) if lang_match else ""
-            code_lines = []
-            i += 1
-            while i < len(lines) and not lines[i].strip().startswith('```'):
-                code_lines.append(html.escape(lines[i]))
-                i += 1
-            code = '\n'.join(code_lines)
+        elif block_type == 'code_block':
+            # Escape HTML in code content
+            code = html.escape(block['content'])
+            language = block.get('language')
 
             if language:
                 result.append(
                     f'<ac:structured-macro ac:name="code">'
                     f'<ac:parameter ac:name="language">{language}</ac:parameter>'
-                    f'<ac:plain-text-body><![CDATA[{code}]]></ac:plain-text-body>'
+                    f'<ac:plain-text-body><![CDATA[{block["content"]}]]></ac:plain-text-body>'
                     f'</ac:structured-macro>'
                 )
             else:
                 result.append(f'<pre>{code}</pre>')
-            i += 1
-            continue
 
-        # Blockquote
-        if stripped.startswith('>'):
-            quote_lines = []
-            while i < len(lines) and lines[i].strip().startswith('>'):
-                quote_text = re.sub(r'^>\s*', '', lines[i].strip())
-                quote_lines.append(quote_text)
-                i += 1
-            quote_content = _markdown_inline_to_xhtml(' '.join(quote_lines))
+        elif block_type == 'blockquote':
+            # Join lines with space for blockquote
+            quote_content = _markdown_inline_to_xhtml(block['content'].replace('\n', ' '))
             result.append(f'<blockquote><p>{quote_content}</p></blockquote>')
-            continue
 
-        # Bullet list
-        if re.match(r'^[-*]\s+', stripped):
-            items = []
-            while i < len(lines) and re.match(r'^[-*]\s+', lines[i].strip()):
-                item_text = re.sub(r'^[-*]\s+', '', lines[i].strip())
-                items.append(f'<li>{_markdown_inline_to_xhtml(item_text)}</li>')
-                i += 1
+        elif block_type == 'bullet_list':
+            items = [f'<li>{_markdown_inline_to_xhtml(item)}</li>' for item in block['items']]
             result.append('<ul>' + ''.join(items) + '</ul>')
-            continue
 
-        # Ordered list
-        if re.match(r'^\d+\.\s+', stripped):
-            items = []
-            while i < len(lines) and re.match(r'^\d+\.\s+', lines[i].strip()):
-                item_text = re.sub(r'^\d+\.\s+', '', lines[i].strip())
-                items.append(f'<li>{_markdown_inline_to_xhtml(item_text)}</li>')
-                i += 1
+        elif block_type == 'ordered_list':
+            items = [f'<li>{_markdown_inline_to_xhtml(item)}</li>' for item in block['items']]
             result.append('<ol>' + ''.join(items) + '</ol>')
-            continue
 
-        # Regular paragraph
-        para_lines = []
-        while i < len(lines) and lines[i].strip() and not _is_block_start(lines[i].strip()):
-            para_lines.append(lines[i].strip())
-            i += 1
-
-        if para_lines:
-            para_content = _markdown_inline_to_xhtml(' '.join(para_lines))
+        elif block_type == 'paragraph':
+            para_content = _markdown_inline_to_xhtml(block['content'])
             result.append(f'<p>{para_content}</p>')
 
     return ''.join(result)
 
 
-# Alias for internal use - uses shared function from adf_helper
-_is_block_start = is_markdown_block_start
+# Alias for internal use - uses shared function from markdown_parser
+_is_block_start = is_block_start
 
 
 def _markdown_inline_to_xhtml(text: str) -> str:
