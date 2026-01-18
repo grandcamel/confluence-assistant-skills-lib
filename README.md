@@ -98,41 +98,6 @@ result = client.upload_file(
 export CONFLUENCE_SITE_URL="https://your-site.atlassian.net"
 export CONFLUENCE_EMAIL="your-email@example.com"
 export CONFLUENCE_API_TOKEN="your-api-token"
-export CONFLUENCE_PROFILE="production"  # Optional
-```
-
-### Profile Configuration
-
-Create `.claude/settings.local.json`:
-
-```json
-{
-  "confluence": {
-    "default_profile": "production",
-    "profiles": {
-      "production": {
-        "url": "https://company.atlassian.net",
-        "default_space": "DOCS"
-      },
-      "sandbox": {
-        "url": "https://company-sandbox.atlassian.net",
-        "default_space": "TEST"
-      }
-    }
-  }
-}
-```
-
-Use profiles:
-
-```python
-from confluence_assistant_skills import get_confluence_client
-
-# Uses default profile or CONFLUENCE_PROFILE env var
-client = get_confluence_client()
-
-# Use specific profile
-client = get_confluence_client(profile="sandbox")
 ```
 
 ## Error Handling
@@ -242,14 +207,11 @@ page = get_page("12345")
 
 - `ConfluenceClient` - HTTP client class
 - `create_client()` - Factory function
-- `get_confluence_client()` - Get configured client from config
+- `get_confluence_client()` - Get configured client from environment variables
 
 ### Config
 
 - `ConfigManager` - Configuration management class
-- `get_config()` - Get merged configuration
-- `get_default_space()` - Get default space key
-- `get_space_keys()` - Get configured space keys
 
 ### Errors
 
