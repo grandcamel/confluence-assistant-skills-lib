@@ -33,7 +33,7 @@ ruff check .                    # Check for issues
 ruff check --fix .              # Auto-fix issues
 
 # Type checking (mypy)
-mypy src/                       # Check types (expect 3 warnings about dependency stubs)
+mypy src/                       # Check types (should be clean)
 
 # Security scanning (bandit)
 bandit -r src/ -q               # Quiet mode, only show issues
@@ -41,7 +41,7 @@ bandit -r src/ -q               # Quiet mode, only show issues
 
 **Notes:**
 - Ruff may remove "unused" imports that are actually re-exports. Mark these with `# noqa: F401`
-- Mypy will warn about missing stubs in `assistant_skills_lib` - these are expected
+- Mypy config in pyproject.toml ignores missing stubs for `assistant_skills_lib`
 - Run all three before committing significant changes
 
 ## Architecture
