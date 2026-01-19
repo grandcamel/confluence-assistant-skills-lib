@@ -7,9 +7,19 @@ This class is designed to be extended with mixins for specific API areas.
 
 from __future__ import annotations
 
+import os
 import uuid
 from datetime import datetime
 from typing import Any
+
+
+def is_mock_mode() -> bool:
+    """Check if Confluence mock mode is enabled.
+
+    Returns:
+        True if CONFLUENCE_MOCK_MODE environment variable is set to 'true'.
+    """
+    return os.environ.get("CONFLUENCE_MOCK_MODE", "").lower() == "true"
 
 
 class MockConfluenceClientBase:

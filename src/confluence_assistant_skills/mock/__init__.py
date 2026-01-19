@@ -31,13 +31,14 @@ Custom mock with specific mixins:
     client = CustomMock()
 """
 
-from .base import MockConfluenceClientBase
+from .base import MockConfluenceClientBase, is_mock_mode
 from .client import MockConfluenceClient
 from .mixins import ContentMixin, PageMixin, SpaceMixin
 
 __all__ = [
     "MockConfluenceClient",
     "MockConfluenceClientBase",
+    "is_mock_mode",
     "PageMixin",
     "SpaceMixin",
     "ContentMixin",
