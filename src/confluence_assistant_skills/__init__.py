@@ -133,6 +133,19 @@ from .markdown_parser import (
     parse_markdown,
 )
 
+# Space Context
+from .space_context import (
+    SpaceContext,
+    clear_context_cache,
+    format_context_summary,
+    get_common_labels,
+    get_page_defaults,
+    get_space_context,
+    get_top_contributors,
+    has_space_context,
+    suggest_parent_page,
+)
+
 # Validators
 from .validators import (
     validate_content_type,
@@ -255,4 +268,14 @@ __all__ = [
     "get_cache",
     "cached",
     "invalidate",
+    # Space Context
+    "SpaceContext",
+    "get_space_context",
+    "clear_context_cache",
+    "has_space_context",
+    "get_page_defaults",
+    "get_common_labels",
+    "get_top_contributors",
+    "suggest_parent_page",
+    "format_context_summary",
 ]
