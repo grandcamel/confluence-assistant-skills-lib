@@ -85,12 +85,94 @@ python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
 markers = [
+    # Core markers
     "unit: Unit tests (fast, no external calls)",
     "integration: Integration tests (may require credentials)",
     "slow: Slow running tests",
-    "live: Tests requiring live credentials",
-    "destructive: Tests that modify data",
+    "live: Tests requiring live Confluence credentials",
+    "destructive: Tests that modify or delete data",
     "e2e: End-to-end tests requiring Claude Code CLI",
+    # Page skill markers
+    "page: Page operation tests",
+    "page_create: Page creation tests",
+    "page_update: Page update tests",
+    "page_delete: Page deletion tests",
+    "page_move: Page move/copy tests",
+    "page_versions: Page version history tests",
+    "page_archive: Page archive/restore tests",
+    "blogpost: Blog post tests",
+    # Space skill markers
+    "space: Space operation tests",
+    "space_create: Space creation tests",
+    "space_settings: Space settings tests",
+    "space_permissions: Space permission tests",
+    "space_homepage: Space homepage tests",
+    # Search skill markers
+    "search: CQL search tests",
+    "cql: CQL query construction tests",
+    "search_pagination: Search pagination tests",
+    "search_sort: Search sorting tests",
+    "search_export: Search export tests",
+    # Comment skill markers
+    "comment: Comment operation tests",
+    "footer_comment: Footer comment tests",
+    "inline_comment: Inline comment tests",
+    "comment_resolve: Comment resolve tests",
+    "comment_thread: Comment thread tests",
+    # Label skill markers
+    "label: Label operation tests",
+    "label_add: Label add tests",
+    "label_remove: Label remove tests",
+    "label_search: Label search tests",
+    "label_bulk: Bulk label tests",
+    # Attachment skill markers
+    "attachment: Attachment operation tests",
+    "attachment_upload: Attachment upload tests",
+    "attachment_download: Attachment download tests",
+    "attachment_versions: Attachment version tests",
+    # Template skill markers
+    "template: Template operation tests",
+    "blueprint: Blueprint tests",
+    "template_apply: Template application tests",
+    # Hierarchy skill markers
+    "hierarchy: Page hierarchy tests",
+    "ancestors: Ancestor traversal tests",
+    "descendants: Descendant traversal tests",
+    "siblings: Sibling page tests",
+    "page_tree: Page tree tests",
+    "breadcrumb: Breadcrumb tests",
+    # Permission skill markers
+    "permission: Permission tests",
+    "restriction: Content restriction tests",
+    "permission_check: Permission check tests",
+    "permission_inherit: Permission inheritance tests",
+    # Property skill markers
+    "property: Content property tests",
+    "property_json: JSON property tests",
+    "property_bulk: Bulk property tests",
+    # Watch skill markers
+    "watch: Watch/notification tests",
+    "watch_content: Content watch tests",
+    "watch_space: Space watch tests",
+    "notification: Notification settings tests",
+    # Analytics skill markers
+    "analytics: Analytics tests",
+    "view_stats: View statistics tests",
+    "contributor_stats: Contributor statistics tests",
+    # JIRA integration skill markers
+    "jira: JIRA integration tests",
+    "jira_links: JIRA issue links tests",
+    "jira_macros: JIRA macro tests",
+    # Environment markers
+    "cloud_only: Confluence Cloud only tests",
+    "dc_only: Confluence Data Center only tests",
+    "docker_required: Tests requiring Docker container",
+    "external_required: Tests requiring external Confluence instance",
+    # Mock markers
+    "mock: Tests using mock client",
+    "mock_page: Mock page tests",
+    "mock_space: Mock space tests",
+    "mock_search: Mock search tests",
 ]
 
 [tool.coverage.run]
