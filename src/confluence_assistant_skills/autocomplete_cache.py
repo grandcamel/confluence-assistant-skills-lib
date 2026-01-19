@@ -60,6 +60,7 @@ class AutocompleteCache:
         self._cache = cache or get_skill_cache("confluence_autocomplete")
         self._memory_cache: dict[str, Any] = {}
         self._memory_cache_time: dict[str, float] = {}
+        self._memory_lock = threading.Lock()
 
     def get_spaces(
         self, client=None, force_refresh: bool = False
@@ -76,16 +77,18 @@ class AutocompleteCache:
         """
         if not force_refresh:
             # Check memory cache first
-            if self.KEY_SPACES_LIST in self._memory_cache:
-                cache_time = self._memory_cache_time.get(self.KEY_SPACES_LIST, 0)
-                if time.time() - cache_time < 300:  # 5 min memory cache
-                    return self._memory_cache[self.KEY_SPACES_LIST]
+            with self._memory_lock:
+                if self.KEY_SPACES_LIST in self._memory_cache:
+                    cache_time = self._memory_cache_time.get(self.KEY_SPACES_LIST, 0)
+                    if time.time() - cache_time < 300:  # 5 min memory cache
+                        return self._memory_cache[self.KEY_SPACES_LIST]
 
             # Check persistent cache
             cached = self._cache.get(self.KEY_SPACES_LIST, category="field")
             if cached:
-                self._memory_cache[self.KEY_SPACES_LIST] = cached
-                self._memory_cache_time[self.KEY_SPACES_LIST] = time.time()
+                with self._memory_lock:
+                    self._memory_cache[self.KEY_SPACES_LIST] = cached
+                    self._memory_cache_time[self.KEY_SPACES_LIST] = time.time()
                 return cached
 
         # Fetch from API if client provided
@@ -123,8 +126,9 @@ class AutocompleteCache:
             category="field",
             ttl=self.TTL_SPACES,
         )
-        self._memory_cache[self.KEY_SPACES_LIST] = spaces
-        self._memory_cache_time[self.KEY_SPACES_LIST] = time.time()
+        with self._memory_lock:
+            self._memory_cache[self.KEY_SPACES_LIST] = spaces
+            self._memory_cache_time[self.KEY_SPACES_LIST] = time.time()
 
     def get_labels(
         self, client=None, force_refresh: bool = False
@@ -266,8 +270,9 @@ class AutocompleteCache:
             count += self._cache.invalidate(pattern=f"{self.KEY_PAGES_PREFIX}*")
 
             # Clear memory cache
-            self._memory_cache.clear()
-            self._memory_cache_time.clear()
+            with self._memory_lock:
+                self._memory_cache.clear()
+                self._memory_cache_time.clear()
 
         return count
 
@@ -283,9 +288,12 @@ class AutocompleteCache:
         # Check what's currently cached
         has_spaces = self._cache.get(self.KEY_SPACES_LIST, category="field") is not None
 
+        with self._memory_lock:
+            memory_cache_size = len(self._memory_cache)
+
         return {
             "spaces_cached": has_spaces,
-            "memory_cache_size": len(self._memory_cache),
+            "memory_cache_size": memory_cache_size,
             "total_cache_entries": cache_stats.entry_count,
             "cache_hit_rate": f"{cache_stats.hit_rate * 100:.1f}%",
         }
