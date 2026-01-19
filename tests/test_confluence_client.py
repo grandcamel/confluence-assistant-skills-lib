@@ -88,6 +88,56 @@ class TestClientInit:
         assert "Confluence-Assistant-Skills-Lib" in client.session.headers["User-Agent"]
 
 
+class TestSessionCleanup:
+    """Tests for session cleanup methods."""
+
+    def test_close(self):
+        """Client close method closes session."""
+        client = ConfluenceClient(
+            base_url="https://test.atlassian.net",
+            email="test@example.com",
+            api_token="test-token",
+        )
+        # Session should be open initially
+        assert client.session is not None
+
+        # Close the session
+        client.close()
+
+        # Session should still exist but be closed (no way to check directly)
+        # Just verify no exception is raised on double close
+        client.close()
+
+    def test_context_manager(self):
+        """Client works as context manager."""
+        with ConfluenceClient(
+            base_url="https://test.atlassian.net",
+            email="test@example.com",
+            api_token="test-token",
+        ) as client:
+            assert client.session is not None
+            assert client.base_url == "https://test.atlassian.net"
+        # Session should be closed after context exit
+
+    @responses.activate
+    def test_context_manager_with_request(self):
+        """Context manager works with actual requests."""
+        responses.add(
+            responses.GET,
+            "https://test.atlassian.net/wiki/api/v2/pages/12345",
+            json={"id": "12345", "title": "Test Page"},
+            status=200,
+        )
+
+        with ConfluenceClient(
+            base_url="https://test.atlassian.net",
+            email="test@example.com",
+            api_token="test-token",
+        ) as client:
+            result = client.get("/api/v2/pages/12345")
+            assert result["id"] == "12345"
+
+
 class TestBuildUrl:
     """Tests for URL building."""
 

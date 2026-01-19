@@ -82,6 +82,45 @@ class ConfluenceClient:
         # Create session with retry strategy
         self.session = self._create_session()
 
+    def close(self) -> None:
+        """Close the session and release resources.
+
+        This method should be called when you're done using the client
+        to ensure proper cleanup of HTTP connections. Alternatively,
+        use the client as a context manager with `with` statement.
+
+        Example:
+            >>> client = ConfluenceClient(base_url="...", email="...", api_token="...")
+            >>> try:
+            ...     result = client.get("/api/v2/pages/12345")
+            >>> finally:
+            ...     client.close()
+        """
+        if self.session:
+            self.session.close()
+
+    def __enter__(self) -> "ConfluenceClient":
+        """Context manager entry.
+
+        Example:
+            >>> with ConfluenceClient(base_url="...", email="...", api_token="...") as client:
+            ...     result = client.get("/api/v2/pages/12345")
+            ... # Session automatically closed on exit
+        """
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: object,
+    ) -> None:
+        """Context manager exit - close session.
+
+        The session is closed regardless of whether an exception occurred.
+        """
+        self.close()
+
     def _create_session(self) -> requests.Session:
         """Create a requests session with retry strategy."""
         session = requests.Session()
