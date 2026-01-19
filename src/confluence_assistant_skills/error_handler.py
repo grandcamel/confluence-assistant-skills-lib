@@ -54,43 +54,119 @@ class ConfluenceError(BaseAPIError):
 class AuthenticationError(BaseAuthenticationError, ConfluenceError):
     """Raised when authentication fails (401)."""
 
-    pass
+    def __init__(
+        self,
+        message: str = "Authentication failed",
+        **kwargs: Any,
+    ):
+        # Remove 'message' from kwargs if present to avoid duplicate argument
+        kwargs.pop("message", None)
+        hint = "\n\nTroubleshooting:\n"
+        hint += "  1. Verify CONFLUENCE_API_TOKEN is set correctly\n"
+        hint += "  2. Check that your email matches your Atlassian account\n"
+        hint += "  3. Ensure the API token hasn't expired\n"
+        hint += "  4. Get a new token at: https://id.atlassian.com/manage-profile/security/api-tokens"
+        super().__init__(message + hint, **kwargs)
 
 
 class PermissionError(BasePermissionError, ConfluenceError):
     """Raised when user lacks permission (403)."""
 
-    pass
+    def __init__(
+        self,
+        message: str = "Permission denied",
+        **kwargs: Any,
+    ):
+        # Remove 'message' from kwargs if present to avoid duplicate argument
+        kwargs.pop("message", None)
+        hint = "\n\nTroubleshooting:\n"
+        hint += "  1. Check your Confluence space permissions\n"
+        hint += "  2. Verify you have the required role (e.g., Editor, Admin)\n"
+        hint += "  3. Contact your Confluence administrator if access is needed"
+        super().__init__(message + hint, **kwargs)
 
 
 class ValidationError(BaseValidationError, ConfluenceError):
     """Raised for invalid input or bad requests (400)."""
 
-    pass
+    def __init__(
+        self,
+        message: str = "Validation failed",
+        field: Optional[str] = None,
+        **kwargs: Any,
+    ):
+        # Remove 'message' from kwargs if present to avoid duplicate argument
+        kwargs.pop("message", None)
+        self.field = field
+        if field:
+            message = f"{message} (field: {field})"
+        super().__init__(message, **kwargs)
 
 
 class NotFoundError(BaseNotFoundError, ConfluenceError):
     """Raised when resource is not found (404)."""
 
-    pass
+    def __init__(
+        self,
+        message: str = "Resource not found",
+        resource_type: Optional[str] = None,
+        resource_id: Optional[str] = None,
+        **kwargs: Any,
+    ):
+        # Remove 'message' from kwargs if present to avoid duplicate argument
+        kwargs.pop("message", None)
+        if resource_type and resource_id:
+            message = f"{resource_type} '{resource_id}' not found"
+        elif resource_type:
+            message = f"{resource_type} not found"
+        super().__init__(message, **kwargs)
 
 
 class RateLimitError(BaseRateLimitError, ConfluenceError):
     """Raised when rate limit is exceeded (429)."""
 
-    pass
+    def __init__(
+        self,
+        message: str = "Rate limit exceeded",
+        retry_after: Optional[int] = None,
+        **kwargs: Any,
+    ):
+        # Remove 'message' from kwargs if present to avoid duplicate argument
+        kwargs.pop("message", None)
+        if retry_after:
+            message = f"{message}. Retry after {retry_after} seconds"
+        else:
+            message = f"{message}. Please wait before retrying"
+        super().__init__(message, retry_after=retry_after, **kwargs)
 
 
 class ConflictError(BaseConflictError, ConfluenceError):
     """Raised on resource conflicts (409)."""
 
-    pass
+    def __init__(
+        self,
+        message: str = "Resource conflict",
+        **kwargs: Any,
+    ):
+        # Remove 'message' from kwargs if present to avoid duplicate argument
+        kwargs.pop("message", None)
+        hint = "\n\nThis usually means the resource was modified by another user."
+        hint += "\nTry refreshing and applying your changes again."
+        super().__init__(message + hint, **kwargs)
 
 
 class ServerError(BaseServerError, ConfluenceError):
     """Raised for server-side errors (5xx)."""
 
-    pass
+    def __init__(
+        self,
+        message: str = "Confluence server error",
+        **kwargs: Any,
+    ):
+        # Remove 'message' from kwargs if present to avoid duplicate argument
+        kwargs.pop("message", None)
+        hint = "\n\nThe Confluence server encountered an error. Please try again later."
+        super().__init__(message + hint, **kwargs)
 
 
 def sanitize_error_message(message: str) -> str:
@@ -130,25 +206,25 @@ def handle_confluence_error(
     message = extract_error_message(response)
     message = sanitize_error_message(message)
 
-    base_kwargs = {
+    base_kwargs: dict[str, Any] = {
         "status_code": status_code,
         "response_data": response.text,
         "operation": operation,
     }
 
     if status_code == 400:
-        raise ValidationError(message=message, **base_kwargs)
+        raise ValidationError(message, **base_kwargs)
     elif status_code == 401:
         raise AuthenticationError(
-            message="Authentication failed. Check your email and API token.",
+            "Authentication failed. Check your email and API token.",
             **base_kwargs,
         )
     elif status_code == 403:
-        raise PermissionError(message=f"Permission denied: {message}", **base_kwargs)
+        raise PermissionError(f"Permission denied: {message}", **base_kwargs)
     elif status_code == 404:
-        raise NotFoundError(message=message, **base_kwargs)
+        raise NotFoundError(message, **base_kwargs)
     elif status_code == 409:
-        raise ConflictError(message=message, **base_kwargs)
+        raise ConflictError(message, **base_kwargs)
     elif status_code == 429:
         retry_after_str = response.headers.get("Retry-After")
         retry_after = (
@@ -157,12 +233,12 @@ def handle_confluence_error(
             else None
         )
         raise RateLimitError(
-            message=f"Rate limit exceeded. Retry after {retry_after or 'unknown'} seconds.",
+            f"Rate limit exceeded. Retry after {retry_after or 'unknown'} seconds.",
             retry_after=retry_after,
             **base_kwargs,
         )
     elif 500 <= status_code < 600:
-        raise ServerError(message=f"Confluence server error: {message}", **base_kwargs)
+        raise ServerError(f"Confluence server error: {message}", **base_kwargs)
     else:
         raise ConfluenceError(message=message, **base_kwargs)
 
