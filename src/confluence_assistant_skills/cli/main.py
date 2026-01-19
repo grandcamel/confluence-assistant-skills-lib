@@ -67,6 +67,12 @@ def cli(
 
         confluence-as space list --output json
     """
+    # Store options in context for subcommands
+    ctx.ensure_object(dict)
+    ctx.obj["output"] = output
+    ctx.obj["verbose"] = verbose
+    ctx.obj["quiet"] = quiet
+
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
 
