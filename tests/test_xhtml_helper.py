@@ -1,6 +1,6 @@
 """Tests for xhtml_helper module."""
 
-from confluence_assistant_skills import (
+from confluence_as import (
     adf_to_xhtml,
     extract_text_from_xhtml,
     markdown_to_xhtml,

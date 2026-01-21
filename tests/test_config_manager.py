@@ -4,9 +4,9 @@ import os
 
 import pytest
 from assistant_skills_lib.error_handler import ValidationError as BaseValidationError
-from confluence_assistant_skills import ConfigManager, get_confluence_client
 
-from confluence_assistant_skills_lib.error_handler import ValidationError
+from confluence_as import ConfigManager, get_confluence_client
+from confluence_as.error_handler import ValidationError
 
 
 class TestConfigManager:
@@ -138,7 +138,7 @@ class TestGetConfluenceClient:
 
         client = get_confluence_client()
 
-        from confluence_assistant_skills import ConfluenceClient
+        from confluence_as import ConfluenceClient
 
         assert isinstance(client, ConfluenceClient)
         assert client.base_url == "https://test.atlassian.net"

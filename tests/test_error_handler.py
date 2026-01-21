@@ -3,7 +3,8 @@
 from unittest.mock import Mock
 
 import pytest
-from confluence_assistant_skills import (
+
+from confluence_as import (
     AuthenticationError,
     ConflictError,
     ConfluenceError,
@@ -15,8 +16,7 @@ from confluence_assistant_skills import (
     handle_confluence_error,
     sanitize_error_message,
 )
-
-from confluence_assistant_skills_lib.error_handler import ValidationError
+from confluence_as.error_handler import ValidationError
 
 
 class TestConfluenceError:

@@ -22,7 +22,7 @@ ConfluenceError (base for all Confluence errors)
 Base exception for all Confluence-related errors.
 
 ```python
-from confluence_assistant_skills import ConfluenceError
+from confluence_as import ConfluenceError
 
 try:
     client.get("/api/v2/pages/invalid")
@@ -43,7 +43,7 @@ except ConfluenceError as e:
 Raised when authentication fails (HTTP 401).
 
 ```python
-from confluence_assistant_skills import AuthenticationError
+from confluence_as import AuthenticationError
 
 try:
     client.get("/api/v2/pages/12345")
@@ -56,7 +56,7 @@ except AuthenticationError:
 Raised when user lacks permission (HTTP 403).
 
 ```python
-from confluence_assistant_skills import PermissionError
+from confluence_as import PermissionError
 
 try:
     client.delete(f"/api/v2/pages/{page_id}")
@@ -71,7 +71,7 @@ Raised for invalid input or bad requests (HTTP 400).
 Also raised by validators when input fails validation.
 
 ```python
-from confluence_assistant_skills import ValidationError, validate_page_id
+from confluence_as import ValidationError, validate_page_id
 
 try:
     validate_page_id("not-a-number")
@@ -84,7 +84,7 @@ except ValidationError as e:
 Raised when a resource is not found (HTTP 404).
 
 ```python
-from confluence_assistant_skills import NotFoundError
+from confluence_as import NotFoundError
 
 try:
     client.get("/api/v2/pages/99999999")
@@ -97,7 +97,7 @@ except NotFoundError:
 Raised when rate limit is exceeded (HTTP 429).
 
 ```python
-from confluence_assistant_skills import RateLimitError
+from confluence_as import RateLimitError
 
 try:
     for page_id in page_ids:
@@ -114,7 +114,7 @@ except RateLimitError as e:
 Raised on resource conflicts (HTTP 409), such as version conflicts during updates.
 
 ```python
-from confluence_assistant_skills import ConflictError
+from confluence_as import ConflictError
 
 try:
     client.put(f"/api/v2/pages/{page_id}", json_data=update_data)
@@ -127,7 +127,7 @@ except ConflictError:
 Raised for server-side errors (HTTP 5xx).
 
 ```python
-from confluence_assistant_skills import ServerError
+from confluence_as import ServerError
 
 try:
     client.get("/api/v2/pages")
@@ -146,7 +146,7 @@ def handle_confluence_error(response: Response, operation: str = "API request") 
 Convert an HTTP error response to the appropriate exception.
 
 ```python
-from confluence_assistant_skills import handle_confluence_error
+from confluence_as import handle_confluence_error
 
 response = requests.get(url, headers=headers)
 if not response.ok:
@@ -178,7 +178,7 @@ def print_error(
 Print a formatted error message to stderr.
 
 ```python
-from confluence_assistant_skills import print_error
+from confluence_as import print_error
 
 try:
     client.get("/api/v2/pages/12345")
@@ -207,7 +207,7 @@ Sanitize error messages (e.g., remove sensitive data).
 Context manager for adding context to errors.
 
 ```python
-from confluence_assistant_skills import ErrorContext
+from confluence_as import ErrorContext
 
 with ErrorContext("updating page", page_id="12345", title="My Page"):
     client.put(f"/api/v2/pages/12345", json_data=data)
@@ -217,7 +217,7 @@ with ErrorContext("updating page", page_id="12345", title="My Page"):
 ## Catching Multiple Error Types
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     ConfluenceError,
     AuthenticationError,
     NotFoundError,

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the `confluence-assistant-skills-lib` PyPI package - a shared Python library providing HTTP client, configuration management, error handling, and utilities for Confluence Cloud REST API automation. It is a dependency of the [Confluence Assistant Skills](https://github.com/grandcamel/Confluence-Assistant-Skills) project.
+This is the `confluence-as` PyPI package - a shared Python library providing HTTP client, configuration management, error handling, and utilities for Confluence Cloud REST API automation. It is a dependency of the [Confluence Assistant Skills](https://github.com/grandcamel/Confluence-Assistant-Skills) project.
 
 **Usage context**: This library powers the `confluence-as` CLI and skill scripts. When Claude Code invokes a Confluence skill, it loads the SKILL.md context, then uses Bash to execute `confluence-as` CLI commands which call this library.
 
@@ -28,7 +28,7 @@ pytest tests/test_validators.py::TestValidators
 pytest tests/test_validators.py::TestValidators::test_validate_page_id
 
 # Run tests with coverage
-pytest --cov=src/confluence_assistant_skills --cov-report=xml -v
+pytest --cov=src/confluence_as --cov-report=xml -v
 
 # Code Quality
 ruff check .                    # Check for issues
@@ -41,7 +41,7 @@ bandit -r src/ -q               # Security scanning
 
 ### Module Structure
 
-The package is organized under `src/confluence_assistant_skills/`:
+The package is organized under `src/confluence_as/`:
 
 - **confluence_client.py**: HTTP client with retry logic (3 attempts, exponential backoff on 429/5xx), session management, file upload/download, and context manager support for Confluence REST API v2
 - **config_manager.py**: Configuration from environment variables. Priority: env vars > keychain > settings.local.json > settings.json > defaults
@@ -114,7 +114,7 @@ ConfluenceError (base)
 
 All public APIs are exported from `__init__.py`. Consumer scripts should use:
 ```python
-from confluence_assistant_skills import get_confluence_client, ValidationError, validate_page_id
+from confluence_as import get_confluence_client, ValidationError, validate_page_id
 ```
 
 ### ConfluenceClient Usage Pattern
@@ -140,7 +140,7 @@ Both `ConfluenceClient` and `MockConfluenceClient` implement `__enter__` and `__
 ## Adding New Functionality
 
 When adding new modules:
-1. Create the module in `src/confluence_assistant_skills/`
+1. Create the module in `src/confluence_as/`
 2. Export public APIs from `__init__.py` in both the imports section and `__all__`
 3. Add corresponding tests in `tests/`
 4. Use existing error classes from error_handler.py
@@ -153,7 +153,7 @@ The library includes a mock Confluence client for testing without real API calls
 ### Architecture
 
 ```
-src/confluence_assistant_skills/mock/
+src/confluence_as/mock/
 ├── __init__.py      # Exports MockConfluenceClient, is_mock_mode
 ├── base.py          # MockConfluenceClientBase with core operations + is_mock_mode()
 ├── client.py        # Composed client (MockConfluenceClient = Base + all mixins)
@@ -283,10 +283,10 @@ pre-commit run --all-files
 
 ### Package Name
 
-Published to PyPI as `confluence-assistant-skills-lib`:
+Published to PyPI as `confluence-as`:
 
 ```bash
-pip install confluence-assistant-skills-lib
+pip install confluence-as
 ```
 
 **Important:** This is the library package. The CLI is published separately as `confluence-assistant-skills`.
@@ -299,14 +299,14 @@ Trusted Publishers on PyPI are configured **per-package**, not per-repository:
 2. Configure at: PyPI Project Settings → Publishing → Add a new publisher
 3. Settings:
    - Owner: `grandcamel`
-   - Repository: `confluence-assistant-skills-lib`
+   - Repository: `confluence-as`
    - Workflow: `publish.yml`
    - Environment: `pypi` (optional but recommended)
 
 ### Release Process
 
 ```bash
-# Bump __version__ in src/confluence_assistant_skills/__init__.py, then:
+# Bump __version__ in src/confluence_as/__init__.py, then:
 git add -A && git commit -m "chore: bump version to 0.4.0"
 git push
 git tag v0.4.0

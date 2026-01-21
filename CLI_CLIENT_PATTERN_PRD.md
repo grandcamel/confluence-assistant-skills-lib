@@ -287,5 +287,5 @@ Run tests after each file to catch regressions early.
 
 - JIRA cli_utils.py: `src/jira_assistant_skills_lib/cli/cli_utils.py`
 - JIRA main.py: `src/jira_assistant_skills_lib/cli/main.py`
-- Confluence cli_utils.py: `src/confluence_assistant_skills_lib/cli/cli_utils.py`
+- Confluence cli_utils.py: `src/confluence_as/cli/cli_utils.py`
 - Splunk pattern (reference): `src/splunk_assistant_skills_lib/cli/cli_utils.py`

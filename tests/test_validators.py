@@ -6,7 +6,7 @@ import pytest
 # Our local ValidationError is a subclass, so catching base catches both
 from assistant_skills_lib.error_handler import ValidationError
 
-from confluence_assistant_skills import (
+from confluence_as import (
     validate_content_type,
     validate_cql,
     validate_email,

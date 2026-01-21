@@ -37,7 +37,7 @@ Convert Markdown to ADF.
 
 **Example:**
 ```python
-from confluence_assistant_skills import markdown_to_adf
+from confluence_as import markdown_to_adf
 
 adf = markdown_to_adf("""
 # Welcome
@@ -69,7 +69,7 @@ Convert plain text to ADF.
 
 **Example:**
 ```python
-from confluence_assistant_skills import text_to_adf
+from confluence_as import text_to_adf
 
 adf = text_to_adf("Hello, world!\n\nThis is a new paragraph.")
 ```
@@ -84,7 +84,7 @@ Convert ADF to Markdown.
 
 **Example:**
 ```python
-from confluence_assistant_skills import adf_to_markdown
+from confluence_as import adf_to_markdown
 
 page = client.get("/api/v2/pages/12345?body-format=atlas_doc_format")
 adf = json.loads(page["body"]["atlas_doc_format"]["value"])
@@ -102,7 +102,7 @@ Convert ADF to plain text (strips formatting).
 
 **Example:**
 ```python
-from confluence_assistant_skills import adf_to_text
+from confluence_as import adf_to_text
 
 text = adf_to_text(adf)
 # "Hello World" (no formatting marks)
@@ -122,7 +122,7 @@ Create an ADF document wrapper.
 
 **Example:**
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     create_adf_doc,
     create_paragraph,
     create_heading,
@@ -297,7 +297,7 @@ Validate basic ADF structure.
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_adf
+from confluence_as import validate_adf
 
 try:
     validate_adf(adf)

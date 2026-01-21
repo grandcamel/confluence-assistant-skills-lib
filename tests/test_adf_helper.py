@@ -2,7 +2,7 @@
 
 import pytest
 
-from confluence_assistant_skills import (
+from confluence_as import (
     adf_to_markdown,
     adf_to_text,
     create_adf_doc,

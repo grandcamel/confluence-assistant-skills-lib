@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "confluence-assistant-skills-lib"
-dynamic = ["version"]
+name = "confluence-as"
+version = "1.0.0"
 description = "Python library for Confluence Cloud REST API - shared utilities for Confluence automation"
 readme = "README.md"
 license = "MIT"
@@ -58,17 +58,16 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/grandcamel/confluence-assistant-skills-lib"
-Documentation = "https://github.com/grandcamel/confluence-assistant-skills-lib#readme"
-Repository = "https://github.com/grandcamel/confluence-assistant-skills-lib"
-Issues = "https://github.com/grandcamel/confluence-assistant-skills-lib/issues"
-Changelog = "https://github.com/grandcamel/confluence-assistant-skills-lib/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/grandcamel/confluence-as"
+Documentation = "https://github.com/grandcamel/confluence-as#readme"
+Repository = "https://github.com/grandcamel/confluence-as"
+Issues = "https://github.com/grandcamel/confluence-as/issues"
+Changelog = "https://github.com/grandcamel/confluence-as/blob/main/CHANGELOG.md"
 
 [project.scripts]
-confluence-as = "confluence_assistant_skills_lib.cli.main:cli"
+confluence-as = "confluence_as.cli.main:cli"
 
-[tool.hatch.version]
-path = "src/confluence_assistant_skills_lib/__init__.py"
+# Version is now static in [project]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -76,7 +75,7 @@ include = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/confluence_assistant_skills_lib"]
+packages = ["src/confluence_as"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -176,7 +175,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["src/confluence_assistant_skills_lib"]
+source = ["src/confluence_as"]
 branch = true
 
 [tool.coverage.report]
@@ -222,4 +221,4 @@ ignore = [
 "tests/*" = ["B011"]      # assert False is fine in tests
 
 [tool.ruff.lint.isort]
-known-first-party = ["confluence_assistant_skills_lib"]
+known-first-party = ["confluence_as"]

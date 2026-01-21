@@ -10,7 +10,7 @@ from unittest.mock import patch
 import pytest
 import responses
 
-from confluence_assistant_skills import (
+from confluence_as import (
     ConfigManager,
     ConfluenceClient,
     adf_to_markdown,

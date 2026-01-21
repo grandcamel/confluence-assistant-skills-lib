@@ -14,7 +14,7 @@ Validate a Confluence page ID (must be numeric).
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_page_id, ValidationError
+from confluence_as import validate_page_id, ValidationError
 
 try:
     page_id = validate_page_id("12345")  # Returns "12345"
@@ -37,7 +37,7 @@ Validate a Confluence space key. Returns uppercase by default.
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_space_key
+from confluence_as import validate_space_key
 
 space = validate_space_key("docs")   # Returns "DOCS"
 space = validate_space_key("DOCS")   # Returns "DOCS"
@@ -62,7 +62,7 @@ Validate content type (page, blogpost, comment, attachment).
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_content_type
+from confluence_as import validate_content_type
 
 content_type = validate_content_type("page")      # Returns "page"
 content_type = validate_content_type("blogpost")  # Returns "blogpost"
@@ -92,7 +92,7 @@ Validate a CQL (Confluence Query Language) query.
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_cql
+from confluence_as import validate_cql
 
 # Valid queries
 cql = validate_cql('space = "DOCS" AND type = page')
@@ -128,7 +128,7 @@ Validate a URL.
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_url
+from confluence_as import validate_url
 
 url = validate_url("https://example.com/path")
 ```
@@ -143,7 +143,7 @@ Validate an email address.
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_email
+from confluence_as import validate_email
 
 email = validate_email("user@example.com")
 ```
@@ -162,7 +162,7 @@ Validate a file path.
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_file_path
+from confluence_as import validate_file_path
 
 path = validate_file_path("/path/to/file.pdf")
 path = validate_file_path("file.txt", must_exist=False)  # Doesn't check existence
@@ -193,7 +193,7 @@ Validate a JIRA issue key (e.g., "PROJ-123").
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_issue_key
+from confluence_as import validate_issue_key
 
 key = validate_issue_key("PROJ-123")   # Returns "PROJ-123"
 key = validate_issue_key("ABC-1")      # Returns "ABC-1"
@@ -216,7 +216,7 @@ Validate a pagination limit.
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_limit
+from confluence_as import validate_limit
 
 limit = validate_limit(25)      # Returns 25
 limit = validate_limit("100")   # Returns 100
@@ -228,7 +228,7 @@ limit = validate_limit(500)     # Raises ValidationError (> max)
 All validators raise `ValidationError` on failure:
 
 ```python
-from confluence_assistant_skills import validate_page_id, ValidationError
+from confluence_as import validate_page_id, ValidationError
 
 try:
     validate_page_id("not-a-number")

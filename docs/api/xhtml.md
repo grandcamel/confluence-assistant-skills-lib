@@ -37,7 +37,7 @@ Convert Confluence XHTML storage format to Markdown.
 
 **Example:**
 ```python
-from confluence_assistant_skills import xhtml_to_markdown
+from confluence_as import xhtml_to_markdown
 
 # From v1 API response
 page = client.get("/rest/api/content/12345?expand=body.storage")
@@ -56,7 +56,7 @@ Convert Markdown to Confluence XHTML storage format.
 
 **Example:**
 ```python
-from confluence_assistant_skills import markdown_to_xhtml
+from confluence_as import markdown_to_xhtml
 
 markdown = """
 # Welcome
@@ -98,7 +98,7 @@ Useful for migrating content from v1 API format to v2 API format.
 
 **Example:**
 ```python
-from confluence_assistant_skills import xhtml_to_adf
+from confluence_as import xhtml_to_adf
 
 # Get page from v1 API
 v1_page = client.get("/rest/api/content/12345?expand=body.storage")
@@ -131,7 +131,7 @@ Useful for using v2 content with v1 API endpoints.
 
 **Example:**
 ```python
-from confluence_assistant_skills import adf_to_xhtml
+from confluence_as import adf_to_xhtml
 
 # Get page from v2 API
 v2_page = client.get("/api/v2/pages/12345?body-format=atlas_doc_format")
@@ -153,7 +153,7 @@ Extract plain text from XHTML content, removing all tags.
 
 **Example:**
 ```python
-from confluence_assistant_skills import extract_text_from_xhtml
+from confluence_as import extract_text_from_xhtml
 
 xhtml = "<p>Hello <strong>World</strong></p>"
 text = extract_text_from_xhtml(xhtml)
@@ -178,7 +178,7 @@ Validate XHTML storage format.
 
 **Example:**
 ```python
-from confluence_assistant_skills import validate_xhtml
+from confluence_as import validate_xhtml
 
 is_valid, error = validate_xhtml(xhtml)
 if not is_valid:

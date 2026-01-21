@@ -1,1 +1,1 @@
-"""Tests for confluence-assistant-skills-lib."""
+"""Tests for confluence-as."""

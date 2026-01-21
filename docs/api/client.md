@@ -5,7 +5,7 @@ The `ConfluenceClient` class provides HTTP access to the Confluence Cloud REST A
 ## ConfluenceClient
 
 ```python
-from confluence_assistant_skills import ConfluenceClient
+from confluence_as import ConfluenceClient
 
 client = ConfluenceClient(
     base_url="https://your-site.atlassian.net",
@@ -267,7 +267,7 @@ else:
 ### get_confluence_client()
 
 ```python
-from confluence_assistant_skills import get_confluence_client
+from confluence_as import get_confluence_client
 
 # Uses environment variables for configuration
 client = get_confluence_client()
@@ -281,7 +281,7 @@ Creates a client using environment variables:
 ### create_client()
 
 ```python
-from confluence_assistant_skills import create_client
+from confluence_as import create_client
 
 client = create_client(
     base_url="https://your-site.atlassian.net",

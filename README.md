@@ -1,7 +1,7 @@
-# Confluence Assistant Skills Library
+# Confluence AS
 
-[![PyPI version](https://img.shields.io/pypi/v/confluence-assistant-skills-lib.svg)](https://pypi.org/project/confluence-assistant-skills-lib/)
-[![Python versions](https://img.shields.io/pypi/pyversions/confluence-assistant-skills-lib.svg)](https://pypi.org/project/confluence-assistant-skills-lib/)
+[![PyPI version](https://img.shields.io/pypi/v/confluence-as.svg)](https://pypi.org/project/confluence-as/)
+[![Python versions](https://img.shields.io/pypi/pyversions/confluence-as.svg)](https://pypi.org/project/confluence-as/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Python library for Confluence Cloud REST API - shared utilities for the [Confluence Assistant Skills](https://github.com/grandcamel/Confluence-Assistant-Skills) project.
@@ -20,7 +20,7 @@ Python library for Confluence Cloud REST API - shared utilities for the [Conflue
 ## Installation
 
 ```bash
-pip install confluence-assistant-skills-lib
+pip install confluence-as
 ```
 
 > **Note:** This is the **library** package. For the CLI tool, install `confluence-assistant-skills` instead:
@@ -31,7 +31,7 @@ pip install confluence-assistant-skills-lib
 ## Quick Start
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     validate_page_id,
     format_page,
@@ -58,7 +58,7 @@ content = markdown_to_adf("# Hello\n\nThis is **bold** text.")
 ## Direct Client Usage
 
 ```python
-from confluence_assistant_skills import ConfluenceClient
+from confluence_as import ConfluenceClient
 
 client = ConfluenceClient(
     base_url="https://your-site.atlassian.net",
@@ -103,7 +103,7 @@ export CONFLUENCE_API_TOKEN="your-api-token"
 ## Error Handling
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     handle_errors,
     ConfluenceError,
     AuthenticationError,
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 ## Validators
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     validate_page_id,      # Numeric string validation
     validate_space_key,    # Space key format
     validate_cql,          # CQL query syntax
@@ -146,7 +146,7 @@ cql = validate_cql('space = "DOCS"')         # Validates syntax
 ## ADF Conversion
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     markdown_to_adf,
     adf_to_markdown,
     text_to_adf,
@@ -174,7 +174,7 @@ print("Hello")
 markdown = adf_to_markdown(adf)
 
 # Build ADF programmatically
-from confluence_assistant_skills import create_adf_doc
+from confluence_as import create_adf_doc
 doc = create_adf_doc([
     create_heading("Title", level=1),
     create_paragraph(text="Hello, World!"),
@@ -185,7 +185,7 @@ doc = create_adf_doc([
 ## Caching
 
 ```python
-from confluence_assistant_skills import Cache, cached
+from confluence_as import Cache, cached
 
 # Direct cache usage
 cache = Cache(default_ttl=300)  # 5 minutes
@@ -269,7 +269,7 @@ pre-commit install
 pytest
 
 # Run with coverage
-pytest --cov=src/confluence_assistant_skills
+pytest --cov=src/confluence_as
 
 # Code quality checks (run automatically on commit with pre-commit)
 ruff check src/ tests/      # Linting

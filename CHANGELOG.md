@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2025-01-20
+
+### Changed
+- **BREAKING**: Package renamed from `confluence-assistant-skills-lib` to `confluence-as`
+- **BREAKING**: Module renamed from `confluence_assistant_skills_lib` to `confluence_as`
+- All imports must be updated: `from confluence_as import ...`
+- Updated dependency to `assistant-skills-lib>=1.0.0`
+
+---
+
+## Previous Releases (as confluence-assistant-skills-lib)
 
 ## [0.4.1] - 2025-01-20
 
@@ -61,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **BREAKING**: Migrated CLI from plugin to library
-- **BREAKING**: Renamed package to `confluence-assistant-skills-lib`
+- **BREAKING**: Renamed package to `confluence-as`
 - **BREAKING**: Removed profile feature from configuration
 
 ### Added
@@ -89,11 +99,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - XHTML Helper for legacy storage format conversion
 - Cache functionality from assistant-skills-lib
 
-[Unreleased]: https://github.com/grandcamel/confluence-assistant-skills-lib/compare/v0.4.1...HEAD
-[0.4.1]: https://github.com/grandcamel/confluence-assistant-skills-lib/compare/v0.4.0...v0.4.1
-[0.4.0]: https://github.com/grandcamel/confluence-assistant-skills-lib/compare/v0.3.1...v0.4.0
-[0.3.1]: https://github.com/grandcamel/confluence-assistant-skills-lib/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/grandcamel/confluence-assistant-skills-lib/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/grandcamel/confluence-assistant-skills-lib/compare/v0.1.1...v0.2.0
-[0.1.1]: https://github.com/grandcamel/confluence-assistant-skills-lib/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/grandcamel/confluence-assistant-skills-lib/releases/tag/v0.1.0
+[Unreleased]: https://github.com/grandcamel/confluence-as/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/grandcamel/confluence-as/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/grandcamel/confluence-as/compare/v0.3.1...v0.4.0
+[0.3.1]: https://github.com/grandcamel/confluence-as/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/grandcamel/confluence-as/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/grandcamel/confluence-as/compare/v0.1.1...v0.2.0
+[0.1.1]: https://github.com/grandcamel/confluence-as/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/grandcamel/confluence-as/releases/tag/v0.1.0

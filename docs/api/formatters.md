@@ -14,7 +14,7 @@ Format a page for display.
 
 **Example:**
 ```python
-from confluence_assistant_skills import format_page
+from confluence_as import format_page
 
 page = client.get("/api/v2/pages/12345")
 print(format_page(page))
@@ -42,7 +42,7 @@ Format a space for display.
 
 **Example:**
 ```python
-from confluence_assistant_skills import format_space
+from confluence_as import format_space
 
 spaces = list(client.paginate("/api/v2/spaces"))
 for space in spaces:
@@ -69,7 +69,7 @@ Format a list of comments.
 
 **Example:**
 ```python
-from confluence_assistant_skills import format_comments
+from confluence_as import format_comments
 
 comments = list(client.paginate(f"/api/v2/pages/{page_id}/footer-comments"))
 print(format_comments(comments, limit=5))
@@ -91,7 +91,7 @@ Format search results for display.
 
 **Example:**
 ```python
-from confluence_assistant_skills import format_search_results
+from confluence_as import format_search_results
 
 response = client.get("/rest/api/content/search", params={"cql": "space=DOCS"})
 print(format_search_results(response["results"], show_excerpt=True))
@@ -114,7 +114,7 @@ Format data as an ASCII table.
 
 **Example:**
 ```python
-from confluence_assistant_skills import format_table
+from confluence_as import format_table
 
 pages = [
     {"id": "1", "title": "Home", "status": "current"},
@@ -147,7 +147,7 @@ Format data as pretty-printed JSON.
 
 **Example:**
 ```python
-from confluence_assistant_skills import format_json
+from confluence_as import format_json
 
 page = client.get("/api/v2/pages/12345")
 print(format_json(page))
@@ -167,7 +167,7 @@ Export data to a CSV file.
 
 **Example:**
 ```python
-from confluence_assistant_skills import export_csv
+from confluence_as import export_csv
 
 pages = list(client.paginate("/api/v2/pages", params={"space-id": "123"}))
 export_csv(pages, "pages.csv", columns=["id", "title", "status"])
@@ -214,7 +214,7 @@ Format an ISO timestamp.
 
 **Example:**
 ```python
-from confluence_assistant_skills import format_timestamp
+from confluence_as import format_timestamp
 
 ts = format_timestamp("2024-01-15T10:30:00Z")
 # Returns: "2024-01-15 10:30:00"
@@ -235,7 +235,7 @@ Truncate text to a maximum length.
 
 **Example:**
 ```python
-from confluence_assistant_skills import truncate
+from confluence_as import truncate
 
 text = truncate("This is a very long text", max_length=15)
 # Returns: "This is a ve..."
@@ -251,7 +251,7 @@ Remove HTML tags from text.
 
 **Example:**
 ```python
-from confluence_assistant_skills import strip_html_tags
+from confluence_as import strip_html_tags
 
 text = strip_html_tags("<p>Hello <strong>World</strong></p>")
 # Returns: "Hello World"
@@ -285,7 +285,7 @@ Print an info message (blue).
 
 **Example:**
 ```python
-from confluence_assistant_skills import print_success, print_warning
+from confluence_as import print_success, print_warning
 
 print_success("Page created successfully!")
 print_warning("Some content was skipped")

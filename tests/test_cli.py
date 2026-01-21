@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from click.testing import CliRunner
 
-from confluence_assistant_skills_lib.cli.main import cli
+from confluence_as.cli.main import cli
 
 
 @pytest.fixture
@@ -60,9 +60,7 @@ class TestPageCommands:
 
     def test_page_get(self, runner: CliRunner) -> None:
         """Test page get command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.page_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.get.return_value = {
@@ -78,9 +76,7 @@ class TestPageCommands:
 
     def test_page_get_with_body(self, runner: CliRunner) -> None:
         """Test page get command with --body option."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.page_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.get.return_value = {
@@ -96,9 +92,7 @@ class TestPageCommands:
 
     def test_page_create(self, runner: CliRunner) -> None:
         """Test page create command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.page_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             # Mock space lookup by key
@@ -131,9 +125,7 @@ class TestPageCommands:
 
     def test_page_delete(self, runner: CliRunner) -> None:
         """Test page delete command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.page_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             # Mock getting page info first
@@ -159,9 +151,7 @@ class TestSpaceCommands:
 
     def test_space_list(self, runner: CliRunner) -> None:
         """Test space list command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.space_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.paginate.return_value = iter(
@@ -186,9 +176,7 @@ class TestSpaceCommands:
 
     def test_space_get(self, runner: CliRunner) -> None:
         """Test space get command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.space_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.paginate.return_value = iter(
@@ -210,9 +198,7 @@ class TestSearchCommands:
 
     def test_search_cql(self, runner: CliRunner) -> None:
         """Test search cql command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.search_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.paginate.return_value = iter(
@@ -224,9 +210,7 @@ class TestSearchCommands:
 
     def test_search_cql_with_options(self, runner: CliRunner) -> None:
         """Test search cql command with options."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.search_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.paginate.return_value = iter([])
@@ -242,9 +226,7 @@ class TestCommentCommands:
 
     def test_comment_list(self, runner: CliRunner) -> None:
         """Test comment list command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.comment_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.get.return_value = {"results": [], "_links": {}}
@@ -254,9 +236,7 @@ class TestCommentCommands:
 
     def test_comment_add(self, runner: CliRunner) -> None:
         """Test comment add command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.comment_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.post.return_value = {
@@ -273,9 +253,7 @@ class TestLabelCommands:
 
     def test_label_add_single(self, runner: CliRunner) -> None:
         """Test label add command with single label (positional argument)."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.label_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.post.return_value = {"results": [{"name": "documentation"}]}
@@ -285,9 +263,7 @@ class TestLabelCommands:
 
     def test_label_add_multiple(self, runner: CliRunner) -> None:
         """Test label add command with multiple labels (positional arguments)."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.label_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.post.return_value = {
@@ -308,9 +284,7 @@ class TestLabelCommands:
 
     def test_label_remove(self, runner: CliRunner) -> None:
         """Test label remove command (positional arguments)."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.label_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.delete.return_value = None
@@ -330,9 +304,7 @@ class TestAttachmentCommands:
 
     def test_attachment_list(self, runner: CliRunner) -> None:
         """Test attachment list command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.attachment_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.get.return_value = {"results": [], "_links": {}}
@@ -346,9 +318,7 @@ class TestHierarchyCommands:
 
     def test_hierarchy_children(self, runner: CliRunner) -> None:
         """Test hierarchy children command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.hierarchy_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.get.return_value = {"results": [], "_links": {}}
@@ -358,9 +328,7 @@ class TestHierarchyCommands:
 
     def test_hierarchy_tree(self, runner: CliRunner) -> None:
         """Test hierarchy tree command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.hierarchy_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             # Mock get page
@@ -379,9 +347,7 @@ class TestAnalyticsCommands:
 
     def test_analytics_views(self, runner: CliRunner) -> None:
         """Test analytics views command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.analytics_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.get.return_value = {"id": "12345", "count": 100}
@@ -395,9 +361,7 @@ class TestWatchCommands:
 
     def test_watch_page(self, runner: CliRunner) -> None:
         """Test watch page command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.watch_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.post.return_value = {}
@@ -411,9 +375,7 @@ class TestTemplateCommands:
 
     def test_template_list(self, runner: CliRunner) -> None:
         """Test template list command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.template_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.paginate.return_value = iter([])
@@ -427,9 +389,7 @@ class TestPropertyCommands:
 
     def test_property_set(self, runner: CliRunner) -> None:
         """Test property set command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.property_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             # Mock get - first call gets page, second could be property check
@@ -450,9 +410,7 @@ class TestPermissionCommands:
 
     def test_permission_page_get(self, runner: CliRunner) -> None:
         """Test permission page get command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.permission_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.get.return_value = {"results": [], "_links": {}}
@@ -462,9 +420,7 @@ class TestPermissionCommands:
 
     def test_permission_space_get(self, runner: CliRunner) -> None:
         """Test permission space get command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.permission_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             # Mock space lookup
@@ -480,9 +436,7 @@ class TestJiraCommands:
 
     def test_jira_link(self, runner: CliRunner) -> None:
         """Test jira link command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.jira_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             # Mock page get
@@ -522,9 +476,7 @@ class TestAdminCommands:
 
     def test_admin_user_search(self, runner: CliRunner) -> None:
         """Test admin user search command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.admin_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.get.return_value = {
@@ -541,9 +493,7 @@ class TestAdminCommands:
 
     def test_admin_group_list(self, runner: CliRunner) -> None:
         """Test admin group list command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.admin_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.get.return_value = {
@@ -555,9 +505,7 @@ class TestAdminCommands:
 
     def test_admin_template_list(self, runner: CliRunner) -> None:
         """Test admin template list command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.admin_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.paginate.return_value = iter([{"id": "100", "key": "DOCS"}])
@@ -584,9 +532,7 @@ class TestBulkCommands:
 
     def test_bulk_label_add_dry_run(self, runner: CliRunner) -> None:
         """Test bulk label add with dry-run."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.bulk_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.paginate.return_value = iter(
@@ -613,9 +559,7 @@ class TestBulkCommands:
 
     def test_bulk_delete_dry_run(self, runner: CliRunner) -> None:
         """Test bulk delete with dry-run."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.bulk_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.paginate.return_value = iter(
@@ -655,9 +599,7 @@ class TestOpsCommands:
 
     def test_ops_health_check(self, runner: CliRunner) -> None:
         """Test ops health-check command."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.ops_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.get.return_value = {"accountId": "123", "displayName": "Test User"}
@@ -670,9 +612,7 @@ class TestGlobalOptions:
 
     def test_output_option(self, runner: CliRunner) -> None:
         """Test --output global option."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.space_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
             client.paginate.return_value = iter([])
@@ -685,12 +625,10 @@ class TestErrorHandling:
 
     def test_api_error_handling(self, runner: CliRunner) -> None:
         """Test that API errors are handled gracefully."""
-        with patch(
-            "confluence_assistant_skills.cli.commands.page_cmds.get_confluence_client"
-        ) as mock:
+        with patch("confluence_as.cli.cli_utils.get_confluence_client") as mock:
             client = MagicMock()
             mock.return_value = client
-            from confluence_assistant_skills import NotFoundError
+            from confluence_as import NotFoundError
 
             client.get.side_effect = NotFoundError("Page not found")
             result = runner.invoke(cli, ["page", "get", "99999"])

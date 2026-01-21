@@ -13,7 +13,7 @@ export CONFLUENCE_API_TOKEN=your-api-token
 ```
 
 ```python
-from confluence_assistant_skills import get_confluence_client
+from confluence_as import get_confluence_client
 
 client = get_confluence_client()
 ```
@@ -23,7 +23,7 @@ client = get_confluence_client()
 ### Get a Page
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     validate_page_id,
     format_page,
@@ -40,7 +40,7 @@ print(format_page(page, detailed=True))
 
 ```python
 import json
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     markdown_to_adf,
 )
@@ -77,7 +77,7 @@ print(f"Created page: {new_page['id']}")
 
 ```python
 import json
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     markdown_to_adf,
 )
@@ -108,7 +108,7 @@ print(f"Updated to version {updated['version']['number']}")
 ### Delete a Page
 
 ```python
-from confluence_assistant_skills import get_confluence_client
+from confluence_as import get_confluence_client
 
 client = get_confluence_client()
 client.delete("/api/v2/pages/12345")
@@ -120,7 +120,7 @@ print("Page deleted")
 ### Search with CQL
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     validate_cql,
     format_search_results,
@@ -136,7 +136,7 @@ print(format_search_results(response["results"], show_excerpt=True))
 ### Find Pages in a Space
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     format_table,
 )
@@ -163,7 +163,7 @@ print(table)
 ### Export All Pages to CSV
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     export_csv,
 )
@@ -183,7 +183,7 @@ print(f"Exported {len(pages)} pages to pages.csv")
 ### Bulk Update Labels
 
 ```python
-from confluence_assistant_skills import get_confluence_client
+from confluence_as import get_confluence_client
 
 client = get_confluence_client()
 
@@ -203,7 +203,7 @@ for page_id in page_ids:
 
 ```python
 import json
-from confluence_assistant_skills import markdown_to_adf, validate_adf
+from confluence_as import markdown_to_adf, validate_adf
 
 markdown = """
 # Project Status
@@ -232,7 +232,7 @@ print(json.dumps(adf, indent=2))
 
 ```python
 import json
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     adf_to_markdown,
 )
@@ -249,7 +249,7 @@ print(markdown)
 
 ```python
 import json
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     xhtml_to_adf,
 )
@@ -280,7 +280,7 @@ client.put("/api/v2/pages/12345", json_data={
 ### Upload Attachment
 
 ```python
-from confluence_assistant_skills import get_confluence_client
+from confluence_as import get_confluence_client
 
 client = get_confluence_client()
 
@@ -295,7 +295,7 @@ print(f"Attachment ID: {result['results'][0]['id']}")
 ### Download Attachment
 
 ```python
-from confluence_assistant_skills import get_confluence_client
+from confluence_as import get_confluence_client
 
 client = get_confluence_client()
 
@@ -308,7 +308,7 @@ print("Downloaded attachment")
 ### List Page Attachments
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     format_attachment,
 )
@@ -325,7 +325,7 @@ for att in attachments:
 ### Get Page Comments
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     format_comments,
 )
@@ -340,7 +340,7 @@ print(format_comments(comments))
 
 ```python
 import json
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     text_to_adf,
 )
@@ -364,7 +364,7 @@ print("Comment added")
 ### Graceful Error Handling
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     ConfluenceError,
     AuthenticationError,
@@ -400,7 +400,7 @@ if page:
 ### Using ErrorContext
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     ErrorContext,
     ConfluenceError,
@@ -429,7 +429,7 @@ except ConfluenceError as e:
 ### Iterate All Results
 
 ```python
-from confluence_assistant_skills import get_confluence_client
+from confluence_as import get_confluence_client
 
 client = get_confluence_client()
 
@@ -441,7 +441,7 @@ for page in client.paginate("/api/v2/pages"):
 ### Limit Results
 
 ```python
-from confluence_assistant_skills import get_confluence_client
+from confluence_as import get_confluence_client
 
 client = get_confluence_client()
 
@@ -453,7 +453,7 @@ print(f"Got {len(pages)} pages")
 ### Collect All Results
 
 ```python
-from confluence_assistant_skills import get_confluence_client
+from confluence_as import get_confluence_client
 
 client = get_confluence_client()
 

@@ -16,13 +16,13 @@ This library provides a complete toolkit for building Confluence integrations:
 ## Installation
 
 ```bash
-pip install confluence-assistant-skills-lib
+pip install confluence-as
 ```
 
 ## Quick Start
 
 ```python
-from confluence_assistant_skills import (
+from confluence_as import (
     get_confluence_client,
     validate_page_id,
     format_page,
@@ -59,7 +59,7 @@ content = markdown_to_adf("# Hello\n\nThis is **bold** text.")
 ### Programmatic Configuration
 
 ```python
-from confluence_assistant_skills import ConfluenceClient
+from confluence_as import ConfluenceClient
 
 client = ConfluenceClient(
     base_url="https://your-site.atlassian.net",

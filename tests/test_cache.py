@@ -10,7 +10,7 @@ from datetime import timedelta
 
 import pytest
 
-from confluence_assistant_skills import Cache, cached
+from confluence_as import Cache, cached
 
 
 class TestCache:
