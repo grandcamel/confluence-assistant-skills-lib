@@ -209,6 +209,17 @@ class MockConfluenceClientBase:
         self._record_request("PUT", endpoint, data=data)
         raise NotImplementedError(f"PUT {endpoint} not implemented in mock")
 
+    def patch(
+        self,
+        endpoint: str,
+        data: dict[str, Any] | None = None,
+        operation: str | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        """PATCH request stub - override in mixins for v2 API updates."""
+        self._record_request("PATCH", endpoint, data=data)
+        raise NotImplementedError(f"PATCH {endpoint} not implemented in mock")
+
     def delete(
         self,
         endpoint: str,

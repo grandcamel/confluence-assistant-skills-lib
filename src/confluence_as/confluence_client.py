@@ -136,6 +136,7 @@ class ConfluenceClient:
                 "HEAD",
                 "GET",
                 "PUT",
+                "PATCH",
                 "DELETE",
                 "OPTIONS",
                 "TRACE",
@@ -341,6 +342,34 @@ class ConfluenceClient:
         """
         return self._request_with_body(
             "PUT", endpoint, data, json_data, params, operation
+        )
+
+    def patch(
+        self,
+        endpoint: str,
+        data: Optional[dict[str, Any]] = None,
+        json_data: Optional[Union[dict[str, Any], list[Any]]] = None,
+        params: Optional[dict[str, Any]] = None,
+        operation: str = "PATCH request",
+    ) -> dict[str, Any]:
+        """
+        Perform a PATCH request.
+
+        Required for Confluence REST API v2 operations like space updates
+        which use PATCH instead of PUT.
+
+        Args:
+            endpoint: API endpoint path
+            data: Form data (mutually exclusive with json_data)
+            json_data: JSON data to send
+            params: Query parameters
+            operation: Description for error messages
+
+        Returns:
+            Parsed JSON response
+        """
+        return self._request_with_body(
+            "PATCH", endpoint, data, json_data, params, operation
         )
 
     def delete(
