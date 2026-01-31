@@ -145,16 +145,18 @@ def bulk_label_add(
     fail_count = 0
     failures = []
 
+    # Build label array once (API accepts array of label objects)
+    label_data = [{"name": lbl} for lbl in label_list]
+
     for i, page in enumerate(pages):
         page_id = page.get("id", "")
         try:
-            # Add labels using v2 API
-            for lbl in label_list:
-                client.post(
-                    f"/api/v2/pages/{page_id}/labels",
-                    json_data={"name": lbl},
-                    operation="add label",
-                )
+            # Add labels using v2 API - send all labels in single request
+            client.post(
+                f"/api/v2/pages/{page_id}/labels",
+                json_data=label_data,
+                operation="add labels",
+            )
             success_count += 1
 
             if output == "text" and (i + 1) % 10 == 0:
