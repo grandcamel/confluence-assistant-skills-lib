@@ -180,12 +180,33 @@ def sanitize_error_message(message: str) -> str:
 def extract_error_message(response: requests.Response) -> str:
     """
     Extract a meaningful error message from a Confluence API response.
+
+    Handles both v1 and v2 API error formats:
+    - v2: { "errors": [{ "title": "...", "detail": "...", "message": "..." }] }
+    - v1: { "data": { "errors": [{ "message": { "translation": "..." } }] }, "message": "..." }
     """
     try:
         data = response.json()
+
+        # Check v2 API format: top-level errors array
         if "errors" in data and isinstance(data["errors"], list) and data["errors"]:
             error = data["errors"][0]
-            return error.get("title", error.get("detail", str(error)))
+            # v2 errors can have title, detail, or message fields
+            return error.get(
+                "title", error.get("detail", error.get("message", str(error)))
+            )
+
+        # Check v1 API format: data.errors array with nested message
+        if "data" in data and isinstance(data["data"], dict):
+            v1_errors = data["data"].get("errors")
+            if isinstance(v1_errors, list) and v1_errors:
+                first_error = v1_errors[0]
+                # v1 errors have message.translation structure
+                if isinstance(first_error.get("message"), dict):
+                    return first_error["message"].get("translation", str(first_error))
+                return str(first_error)
+
+        # Check for top-level message fields
         if "message" in data:
             return data["message"]
         if "errorMessage" in data:
@@ -232,8 +253,9 @@ def handle_confluence_error(
             if retry_after_str and retry_after_str.isdigit()
             else None
         )
+        # Don't include retry info in message - RateLimitError constructor adds it
         raise RateLimitError(
-            f"Rate limit exceeded. Retry after {retry_after or 'unknown'} seconds.",
+            "Rate limit exceeded",
             retry_after=retry_after,
             **base_kwargs,
         )
