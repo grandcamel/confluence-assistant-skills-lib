@@ -248,7 +248,8 @@ def update_space(
     if homepage:
         update_data["homepageId"] = homepage
 
-    result = client.put(
+    # v2 API uses PATCH for space updates, not PUT
+    result = client.patch(
         f"/api/v2/spaces/{space_id}", json_data=update_data, operation="update space"
     )
 
