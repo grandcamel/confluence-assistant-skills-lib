@@ -267,6 +267,106 @@ Available markers (see pyproject.toml for full list):
 - Labels: `label`, `label_add`, `label_remove`, `label_search`
 - Attachments: `attachment`, `attachment_upload`, `attachment_download`
 
+## Live Integration Tests
+
+The `tests/live/` directory contains 435 live integration tests that run against a real Confluence instance. These tests are skipped by default and require the `--live` flag.
+
+### Running Live Tests
+
+```bash
+# Run all live tests (requires CONFLUENCE_* env vars)
+pytest tests/live/ --live -v
+
+# Run specific domain tests
+pytest tests/live/test_page_live.py --live -v
+pytest tests/live/test_search_live.py --live -v
+
+# Use existing space (faster - skips space creation)
+pytest tests/live/ --live --space-key MYSPACE -v
+
+# Keep test space after tests (for debugging)
+pytest tests/live/ --live --keep-space -v
+
+# Combine options
+pytest tests/live/test_label_live.py --live --space-key DEV --keep-space -v
+```
+
+### Required Environment Variables
+
+```bash
+export CONFLUENCE_API_TOKEN="your-api-token"
+export CONFLUENCE_EMAIL="your-email@example.com"
+export CONFLUENCE_SITE_URL="https://your-site.atlassian.net"
+```
+
+### Test Infrastructure
+
+**Session-scoped fixtures** (created once per test run):
+- `confluence_client` - Authenticated ConfluenceClient instance
+- `test_space` - Auto-created test space (key: CAS + 6 hex chars, e.g., CASA1B2C3)
+
+**Function-scoped fixtures** (fresh per test):
+- `test_page` - Simple test page with cleanup
+- `test_page_with_content` - Page with rich XHTML content
+- `test_child_page` - Child page under test_page
+- `test_blogpost` - Test blog post
+- `test_label` - Unique label string
+
+**Factory fixtures:**
+- `page_factory` - Creates pages with automatic cleanup
+- `search_helper` - Simplified CQL search interface with wait-for-indexing support
+- `cleanup_tracker` - Manual resource tracking for cleanup
+
+### Test Utilities (tests/live/test_utils.py)
+
+**Builders** for creating test data:
+```python
+from tests.live.test_utils import PageBuilder, BlogPostBuilder, SpaceBuilder
+
+# Create page with fluent API
+page = (PageBuilder()
+    .with_title("My Test Page")
+    .with_space_id(space_id)
+    .with_storage_body("<p>Content</p>")
+    .with_labels(["test", "automation"])
+    .build_and_create(client))
+```
+
+**Assertion helpers:**
+- `assert_page_exists(client, page_id, expected_title=None)` - Verify page exists
+- `assert_page_not_exists(client, page_id)` - Verify page deleted
+- `assert_search_returns_results(client, cql, min_count=1, timeout=30)` - Wait for search indexing
+- `assert_label_exists(client, page_id, label_name)` - Verify label on page
+
+**Wait utilities:**
+- `wait_for_indexing(client, space_id, min_pages=1, timeout=60)` - Wait for search index
+- `wait_for_condition(fn, timeout=30, poll_interval=1.0)` - Generic polling
+
+### Test Domains
+
+| Domain | Files | Description |
+|--------|-------|-------------|
+| Page | 11 | CRUD, versions, history, copy, move, archive |
+| Comment | 7 | Footer/inline comments, threads, resolve |
+| Label | 6 | Add/remove, bulk, search, suggestions |
+| Hierarchy | 8 | Ancestors, descendants, siblings, breadcrumbs |
+| Search | 8 | CQL, pagination, sorting, export |
+| Space | 8 | CRUD, settings, permissions, homepage |
+| Permission | 5 | Restrictions, inheritance, bulk |
+| Analytics | 6 | Views, contributors, space stats |
+| Watch | 5 | Content/space watching, notifications |
+| Attachment | 7 | Upload, download, versions, metadata |
+| Template | 6 | Blueprints, variables, application |
+| Property | 6 | JSON properties, versioning, search |
+| JIRA | 4 | Issue links, macros, roadmaps |
+
+### Cleanup Behavior
+
+- **Default**: Test space auto-deleted after all tests complete
+- **--keep-space**: Preserves test space for debugging
+- **--space-key**: Uses existing space (no creation/deletion)
+- **Per-test cleanup**: Each test cleans up its own resources (pages, labels, etc.)
+
 ## Gotchas
 
 - **Context manager required**: Always use `with get_confluence_client() as client:` pattern. Manual `try/finally` with `close()` works but context manager is preferred.

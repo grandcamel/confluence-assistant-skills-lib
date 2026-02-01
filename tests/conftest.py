@@ -42,7 +42,8 @@ def pytest_collection_modifyitems(config, items):
     if not config.getoption("--live"):
         skip_live = pytest.mark.skip(reason="Need --live to run")
         for item in items:
-            if "live" in item.keywords:
+            # Skip tests with 'live' marker OR tests in tests/live/ directory
+            if "live" in item.keywords or "tests/live/" in str(item.fspath):
                 item.add_marker(skip_live)
 
 
