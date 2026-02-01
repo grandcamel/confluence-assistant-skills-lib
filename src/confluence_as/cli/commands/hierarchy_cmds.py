@@ -236,26 +236,23 @@ def get_descendants(
     page = _get_page_info(client, page_id)
     page_title = page.get("title", "Unknown")
 
-    # Recursively collect descendants
+    # Use v2 descendants endpoint instead of recursive children calls
+    params: dict[str, Any] = {"limit": min(limit, 25)}
+    if max_depth is not None:
+        params["depth"] = max_depth
+
     descendants: list[dict[str, Any]] = []
-
-    def collect_descendants(parent_id: str, current_depth: int = 0) -> None:
-        if max_depth is not None and current_depth >= max_depth:
-            return
+    for desc in client.paginate(
+        f"/api/v2/pages/{page_id}/descendants",
+        params=params,
+        operation="get descendants",
+    ):
         if len(descendants) >= limit:
-            return
-
-        for child in client.paginate(
-            f"/api/v2/pages/{parent_id}/children",
-            operation="get children",
-        ):
-            if len(descendants) >= limit:
-                break
-            child["_depth"] = current_depth + 1
-            descendants.append(child)
-            collect_descendants(child["id"], current_depth + 1)
-
-    collect_descendants(page_id)
+            break
+        # v2 API returns depth in response, use it if available
+        if "_depth" not in desc:
+            desc["_depth"] = desc.get("depth", 1)
+        descendants.append(desc)
 
     if output == "json":
         click.echo(

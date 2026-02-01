@@ -546,8 +546,9 @@ def get_page_versions(
 
     page = client.get(f"/api/v2/pages/{page_id}", operation="get page")
 
+    # v2 API endpoint for page versions
     versions_response = client.get(
-        f"/rest/api/content/{page_id}/version",
+        f"/api/v2/pages/{page_id}/versions",
         params={"limit": limit},
         operation="get versions",
     )
@@ -584,14 +585,16 @@ def get_page_versions(
         else:
             data = []
             for v in versions:
+                # v2 API uses createdAt/authorId, v1 uses when/by
+                created = v.get("createdAt") or v.get("when", "")
+                author = v.get("authorId") or v.get("by", {}).get(
+                    "displayName", v.get("by", {}).get("username", "Unknown")
+                )
                 data.append(
                     {
                         "version": v.get("number", "?"),
-                        "when": v.get("when", "")[:16] if v.get("when") else "N/A",
-                        "by": v.get("by", {}).get(
-                            "displayName",
-                            v.get("by", {}).get("username", "Unknown"),
-                        ),
+                        "when": created[:16] if created else "N/A",
+                        "by": author if isinstance(author, str) else "Unknown",
                         "message": v.get("message", "")[:40] or "-",
                     }
                 )
@@ -646,6 +649,7 @@ def restore_version(
             f"Specify a version less than {current_version}."
         )
 
+    # v1 API required - v2 has no equivalent for fetching historical version content
     historical = client.get(
         f"/rest/api/content/{page_id}",
         params={"version": version, "expand": "body.storage,version"},

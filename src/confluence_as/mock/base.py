@@ -99,6 +99,7 @@ class MockConfluenceClientBase:
         self._comments: dict[str, list[dict[str, Any]]] = {}
         self._labels: dict[str, list[dict[str, Any]]] = {}
         self._attachments: dict[str, list[dict[str, Any]]] = {}
+        self._properties: dict[str, list[dict[str, Any]]] = {}  # page_id -> properties
 
         # Request tracking for assertions
         self._requests: list[dict[str, Any]] = []
@@ -261,5 +262,6 @@ class MockConfluenceClientBase:
         self._comments.clear()
         self._labels.clear()
         self._attachments.clear()
+        self._properties.clear()
         self._requests.clear()
         self._init_seed_data()

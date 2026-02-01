@@ -60,6 +60,12 @@ class PageMixin:
             page_id = match.group(1)
             return self._get_versions(page_id)
 
+        # GET /api/v2/pages/{id}/descendants
+        match = re.match(r"/api/v2/pages/(\d+)/descendants", endpoint)
+        if match:
+            page_id = match.group(1)
+            return self._get_descendants(page_id, params or {})
+
         # Try parent class
         return super().get(endpoint, params=params, operation=operation, **kwargs)  # type: ignore[misc]
 
@@ -161,6 +167,32 @@ class PageMixin:
             if p.get("parentId") == parent_id
         ]
         return {"results": children, "_links": {}}
+
+    def _get_descendants(self, page_id: str, params: dict[str, Any]) -> dict[str, Any]:
+        """Get all descendant pages recursively."""
+        max_depth = params.get("depth")
+        limit = int(params.get("limit", 100))
+
+        descendants: list[dict[str, Any]] = []
+
+        def collect(parent_id: str, current_depth: int = 1) -> None:
+            if max_depth is not None and current_depth > max_depth:
+                return
+            if len(descendants) >= limit:
+                return
+
+            for p in self._pages.values():  # type: ignore[attr-defined]
+                if p.get("parentId") == parent_id:
+                    if len(descendants) >= limit:
+                        break
+                    desc = p.copy()
+                    desc["depth"] = current_depth
+                    desc["_depth"] = current_depth
+                    descendants.append(desc)
+                    collect(p["id"], current_depth + 1)
+
+        collect(page_id)
+        return {"results": descendants, "_links": {}}
 
     def _get_versions(self, page_id: str) -> dict[str, Any]:
         """Get page versions."""

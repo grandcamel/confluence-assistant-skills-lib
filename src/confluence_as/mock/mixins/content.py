@@ -67,6 +67,12 @@ class ContentMixin:
             page_id = match.group(1)
             return self._get_attachments(page_id)
 
+        # GET /api/v2/pages/{id}/properties
+        match = re.match(r"/api/v2/pages/(\d+)/properties$", endpoint)
+        if match:
+            page_id = match.group(1)
+            return self._get_properties(page_id)
+
         # Try parent class
         return super().get(endpoint, params=params, operation=operation, **kwargs)  # type: ignore[misc]
 
@@ -92,8 +98,34 @@ class ContentMixin:
             page_id = match.group(1)
             return self._add_comment(page_id, data or {})
 
+        # POST /api/v2/pages/{id}/properties
+        match = re.match(r"/api/v2/pages/(\d+)/properties$", endpoint)
+        if match:
+            page_id = match.group(1)
+            return self._create_property(page_id, data or {})
+
         # Try parent class
         return super().post(endpoint, data=data, operation=operation, **kwargs)  # type: ignore[misc]
+
+    def put(
+        self,
+        endpoint: str,
+        data: dict[str, Any] | None = None,
+        operation: str | None = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Handle PUT requests for content operations."""
+        self._record_request("PUT", endpoint, data=data)  # type: ignore[attr-defined]
+
+        # PUT /api/v2/pages/{id}/properties/{property_id}
+        match = re.match(r"/api/v2/pages/(\d+)/properties/(\d+)", endpoint)
+        if match:
+            page_id = match.group(1)
+            property_id = match.group(2)
+            return self._update_property(page_id, property_id, data or {})
+
+        # Try parent class
+        return super().put(endpoint, data=data, operation=operation, **kwargs)  # type: ignore[misc]
 
     def delete(
         self,
@@ -116,6 +148,13 @@ class ContentMixin:
         if match:
             comment_id = match.group(1)
             return self._delete_comment(comment_id)
+
+        # DELETE /api/v2/pages/{id}/properties/{property_id}
+        match = re.match(r"/api/v2/pages/(\d+)/properties/(\d+)", endpoint)
+        if match:
+            page_id = match.group(1)
+            property_id = match.group(2)
+            return self._delete_property(page_id, property_id)
 
         # Try parent class
         return super().delete(endpoint, operation=operation, **kwargs)  # type: ignore[misc]
@@ -241,3 +280,63 @@ class ContentMixin:
         """Get attachments for a page."""
         attachments = self._attachments.get(page_id, [])  # type: ignore[attr-defined]
         return {"results": attachments, "_links": {}}
+
+    def _get_properties(self, page_id: str) -> dict[str, Any]:
+        """Get properties for a page."""
+        properties = self._properties.get(page_id, [])  # type: ignore[attr-defined]
+        return {"results": properties, "_links": {}}
+
+    def _create_property(self, page_id: str, data: dict[str, Any]) -> dict[str, Any]:
+        """Create a new property on a page."""
+        if page_id not in self._pages:  # type: ignore[attr-defined]
+            from confluence_as.error_handler import NotFoundError
+
+            raise NotFoundError(f"Page {page_id} not found")
+
+        property_id = self._generate_id()  # type: ignore[attr-defined]
+        prop = {
+            "id": property_id,
+            "key": data.get("key", ""),
+            "value": data.get("value", {}),
+            "version": {"number": 1, "createdAt": self._now_iso()},  # type: ignore[attr-defined]
+        }
+
+        if page_id not in self._properties:  # type: ignore[attr-defined]
+            self._properties[page_id] = []  # type: ignore[attr-defined]
+        self._properties[page_id].append(prop)  # type: ignore[attr-defined]
+
+        return prop
+
+    def _update_property(
+        self, page_id: str, property_id: str, data: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Update an existing property."""
+        if page_id not in self._properties:  # type: ignore[attr-defined]
+            from confluence_as.error_handler import NotFoundError
+
+            raise NotFoundError(f"Property {property_id} not found on page {page_id}")
+
+        for prop in self._properties[page_id]:  # type: ignore[attr-defined]
+            if prop["id"] == property_id:
+                prop["value"] = data.get("value", prop["value"])
+                version_num = data.get("version", {}).get(
+                    "number", prop["version"]["number"] + 1
+                )
+                prop["version"] = {
+                    "number": version_num,
+                    "createdAt": self._now_iso(),  # type: ignore[attr-defined]
+                }
+                return prop
+
+        from confluence_as.error_handler import NotFoundError
+
+        raise NotFoundError(f"Property {property_id} not found on page {page_id}")
+
+    def _delete_property(self, page_id: str, property_id: str) -> None:
+        """Delete a property."""
+        if page_id in self._properties:  # type: ignore[attr-defined]
+            self._properties[page_id] = [  # type: ignore[attr-defined]
+                p
+                for p in self._properties[page_id]  # type: ignore[attr-defined]
+                if p.get("id") != property_id
+            ]

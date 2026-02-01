@@ -10,6 +10,7 @@ from typing import Any
 import click
 
 from confluence_as import (
+    NotFoundError,
     ValidationError,
     format_json,
     format_table,
@@ -19,6 +20,32 @@ from confluence_as import (
     validate_page_id,
 )
 from confluence_as.cli.cli_utils import get_client_from_context
+
+
+def _get_property_id_by_key(client: Any, page_id: str, key: str) -> str:
+    """Get property ID from key for v2 API operations.
+
+    v2 API uses property-id in path instead of key, so we need to
+    look up the ID by iterating through properties.
+
+    Args:
+        client: Confluence API client
+        page_id: Page ID to get properties from
+        key: Property key to find
+
+    Returns:
+        Property ID as string
+
+    Raises:
+        NotFoundError: If property with given key is not found
+    """
+    for prop in client.paginate(
+        f"/api/v2/pages/{page_id}/properties",
+        operation="get properties for ID lookup",
+    ):
+        if prop.get("key") == key:
+            return prop["id"]
+    raise NotFoundError(f"Property '{key}' not found on page {page_id}")
 
 
 @click.group(name="property")
@@ -67,17 +94,17 @@ def list_properties(
     page = client.get(f"/api/v2/pages/{page_id}", operation="get page")
     page_title = page.get("title", "Unknown")
 
-    # Get properties using v1 API
+    # Get properties using v2 API
     params: dict[str, Any] = {
         "limit": 100,
     }
 
-    if expand:
-        params["expand"] = expand
+    # Note: v2 API doesn't support expand parameter for properties
+    # The expand parameter is silently ignored
 
     properties = []
     for prop in client.paginate(
-        f"/rest/api/content/{page_id}/property",
+        f"/api/v2/pages/{page_id}/properties",
         params=params,
         operation="list properties",
     ):
@@ -190,24 +217,26 @@ def get_properties(
     page = client.get(f"/api/v2/pages/{page_id}", operation="get page")
     page_title = page.get("title", "Unknown")
 
-    params: dict[str, Any] = {}
-    if expand:
-        params["expand"] = expand
+    # Note: v2 API doesn't support expand parameter for properties
 
     if key:
-        # Get specific property
-        prop = client.get(
-            f"/rest/api/content/{page_id}/property/{key}",
-            params=params,
-            operation="get property",
-        )
-        properties = [prop]
+        # Get specific property by filtering from all properties
+        # v2 API uses property-id in path, not key, so we filter client-side
+        properties = []
+        for prop in client.paginate(
+            f"/api/v2/pages/{page_id}/properties",
+            operation="get properties",
+        ):
+            if prop.get("key") == key:
+                properties = [prop]
+                break
+        if not properties:
+            raise NotFoundError(f"Property '{key}' not found on page {page_id}")
     else:
         # Get all properties
         properties = list(
             client.paginate(
-                f"/rest/api/content/{page_id}/property",
-                params=params,
+                f"/api/v2/pages/{page_id}/properties",
                 operation="get properties",
             )
         )
@@ -310,37 +339,52 @@ def set_property(
         except json.JSONDecodeError:
             property_value = value
 
-    # Build property data
+    # Build property data for v2 API
     property_data: dict[str, Any] = {
         "key": key,
         "value": property_value,
     }
 
     if update or version is not None:
-        # Get current version if not provided
-        if version is None:
-            try:
-                current = client.get(
-                    f"/rest/api/content/{page_id}/property/{key}",
-                    operation="get current property",
-                )
-                version = current.get("version", {}).get("number", 0) + 1
-            except Exception:
-                # Property doesn't exist, create new
-                version = 1
+        # Get current property to find ID and version
+        property_id = None
+        current_version = 0
+        try:
+            property_id = _get_property_id_by_key(client, page_id, key)
+            # Get the property to find current version
+            for prop in client.paginate(
+                f"/api/v2/pages/{page_id}/properties",
+                operation="get current property version",
+            ):
+                if prop.get("key") == key:
+                    current_version = prop.get("version", {}).get("number", 0)
+                    break
+        except NotFoundError:
+            # Property doesn't exist, will create new
+            pass
 
-        property_data["version"] = {"number": version}
+        if property_id:
+            # Update existing property using v2 API (uses property-id in path)
+            if version is None:
+                version = current_version + 1
+            property_data["version"] = {"number": version}
 
-        # Update existing property
-        result = client.put(
-            f"/rest/api/content/{page_id}/property/{key}",
-            json_data=property_data,
-            operation="update property",
-        )
+            result = client.put(
+                f"/api/v2/pages/{page_id}/properties/{property_id}",
+                json_data=property_data,
+                operation="update property",
+            )
+        else:
+            # Property doesn't exist, create new
+            result = client.post(
+                f"/api/v2/pages/{page_id}/properties",
+                json_data=property_data,
+                operation="create property",
+            )
     else:
-        # Create new property
+        # Create new property using v2 API
         result = client.post(
-            f"/rest/api/content/{page_id}/property",
+            f"/api/v2/pages/{page_id}/properties",
             json_data=property_data,
             operation="create property",
         )
@@ -401,17 +445,10 @@ def delete_property(
     page = client.get(f"/api/v2/pages/{page_id}", operation="get page")
     page_title = page.get("title", "Unknown")
 
-    # Get property info before deletion
+    # Get property ID for v2 API (which uses property-id in path, not key)
     try:
-        client.get(
-            f"/rest/api/content/{page_id}/property/{key}",
-            operation="get property",
-        )
-        prop_exists = True
-    except Exception:
-        prop_exists = False
-
-    if not prop_exists:
+        property_id = _get_property_id_by_key(client, page_id, key)
+    except NotFoundError:
         if output == "json":
             click.echo(
                 format_json(
@@ -436,9 +473,9 @@ def delete_property(
             click.echo("Delete cancelled.")
             return
 
-    # Delete property
+    # Delete property using v2 API (uses property-id in path)
     client.delete(
-        f"/rest/api/content/{page_id}/property/{key}",
+        f"/api/v2/pages/{page_id}/properties/{property_id}",
         operation="delete property",
     )
 
