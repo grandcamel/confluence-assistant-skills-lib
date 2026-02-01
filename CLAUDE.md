@@ -267,6 +267,56 @@ Available markers (see pyproject.toml for full list):
 - Labels: `label`, `label_add`, `label_remove`, `label_search`
 - Attachments: `attachment`, `attachment_upload`, `attachment_download`
 
+## Unit Tests
+
+The `tests/unit/` directory contains 383 domain-specific unit tests migrated from Confluence-Assistant-Skills. These tests use a mock client with `setup_response()` for configuring HTTP responses.
+
+### Test Structure
+
+```
+tests/unit/
+├── conftest.py          # Consolidated fixtures (mock_client, sample data)
+├── test_analytics.py    # Page views, space analytics, popular content
+├── test_attachment.py   # Upload, download, list, update, delete
+├── test_comment.py      # Add, get, update, delete, resolve comments
+├── test_label.py        # Add, remove, get, search labels
+├── test_page.py         # Page creation, markdown/ADF conversion
+├── test_permission.py   # Page restrictions, space permissions
+├── test_property.py     # Get, set, list, delete properties
+├── test_search.py       # CQL suggestions, history, streaming export
+├── test_template.py     # Create, get, list, update templates
+└── test_watch.py        # Watch/unwatch pages/spaces, get watchers
+```
+
+### Running Unit Tests
+
+```bash
+# Run all unit tests
+pytest tests/unit/ -v
+
+# Run specific domain tests
+pytest tests/unit/test_comment.py -v
+pytest tests/unit/test_search.py -v
+
+# Run with coverage
+pytest tests/unit/ --cov=src/confluence_as --cov-report=term-missing
+```
+
+### Mock Client Fixture
+
+The unit tests use a `mock_client` fixture that wraps `ConfluenceClient` with `setup_response()`:
+
+```python
+def test_example(mock_client):
+    # Configure mock response
+    mock_client.setup_response("get", {"results": [{"id": "123"}]})
+
+    # Make the call - returns configured response
+    result = mock_client.get("/api/v2/pages")
+
+    assert len(result["results"]) == 1
+```
+
 ## Live Integration Tests
 
 The `tests/live/` directory contains 435 live integration tests that run against a real Confluence instance. These tests are skipped by default and require the `--live` flag.
